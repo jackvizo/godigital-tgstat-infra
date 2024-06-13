@@ -1,0 +1,12 @@
+{
+  "name": "db-prisma",
+  "private": true,
+  "scripts": {
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate": "prisma migrate deploy"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.2.0",
+    "prisma": "^5.2.0"
+  }
+}

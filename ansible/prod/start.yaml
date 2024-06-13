@@ -1,0 +1,9 @@
+---
+- hosts: godigital
+  gather_facts: no
+  remote_user: user
+  tasks:
+    - name: start containers
+      shell:
+        cmd: "sudo docker-compose up -d"
+        chdir: /home/user/godigital-infra/docker/godigital-docker-prod

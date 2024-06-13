@@ -1,0 +1,197 @@
+version: '3.7'
+
+x-prefect-worker-base: &prefect-worker-template
+  build: 
+    context: ../../../godigital-prefect
+    dockerfile: worker.Dockerfile
+    args:
+      TMP_FOLDER: /prefect-tmp/runner_storage
+  image: godigital-prefect-worker:latest
+  restart: always
+
+  environment:
+    PREFECT_API_URL: http://prefect-server:4200/api
+    ANALYTICS_APP_DATABASE_URL: '${PREFECT_ANALYTICS_APP_DATABASE_URL}'
+    TMP_FOLDER: /prefect-tmp/runner_storage
+
+  volumes:
+    - ../../../godigital-prefect:/app
+    - godigital_shared:/prefect-tmp/runner_storage
+  networks:
+    - godigital-network
+  depends_on:
+    prefect-server:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://prefect-server:4200/api/ready || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+
+services:
+  hasura:
+    image: hasura/graphql-engine:latest
+    container_name: godigital-hasura
+    ports:
+        - '${HASURA_PORT}:8080'
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: '${HASURA_GRAPHQL_DATABASE_URL}'
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "false"
+      HASURA_GRAPHQL_INFER_FUNCTION_PERMISSIONS: "false"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_JWT_SECRETS: '${HASURA_GRAPHQL_JWT_SECRETS}'
+      HASURA_GRAPHQL_ADMIN_SECRET: '${HASURA_GRAPHQL_ADMIN_SECRET}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
+      HASURA_GRAPHQL_CORS_DOMAIN: '${HASURA_GRAPHQL_CORS_DOMAIN}'
+      ACTIONS_BASE_URL: '${HASURA_ACTIONS_BASE_URL}'
+      NEXTJS_BACKEND_TOKEN: '${NEXTJS_BACKEND_TOKEN}'
+      PREFECT_URL: '${HASURA_PREFECT_URL}'
+    networks:
+      - godigital-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080", "&&", "curl -f ${HASURA_KEYCLOAK_CERTS_URL} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - keycloak
+    command: ["sh", "-c", "sleep 30 && graphql-engine serve"]
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"    
+      
+  keycloak:
+    container_name: godigital-keycloak
+    build: 
+      context: .
+      dockerfile: keycloak.Dockerfile
+      args:
+        KC_DB_URL: "${KEYCLOAK_POSTGRES_URL}"
+        KC_DB_USERNAME: "${KEYCLOAK_POSTGRES_USER}"
+        KC_DB_PASSWORD: "${KEYCLOAK_POSTGRES_PASSWORD}"
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: "${KEYCLOAK_POSTGRES_URL}"
+      KC_DB_USERNAME: "${KEYCLOAK_POSTGRES_USER}"
+      KC_DB_PASSWORD: "${KEYCLOAK_POSTGRES_PASSWORD}"
+      KEYCLOAK_ADMIN: "${KEYCLOAK_USER}"
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_PASSWORD}"
+      KC_PROXY: "edge"
+      KC_PROXY_HEADERS: "xforwarded"
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 700M      
+    ports:
+      - '${KEYCLOAK_PORT}:8080'
+    command:
+      - start
+      - --optimized
+      - --proxy=edge
+      - --proxy-headers=xforwarded
+      - --hostname=sso.godigital.team
+      - --hostname-admin-url=https://sso.godigital.team
+      - --import-realm
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  prefect-postgres:
+    build: 
+      context: ../../../godigital-prefect
+      dockerfile: postgres.Dockerfile
+    container_name: godigital-prefect-postgres
+    environment:
+      POSTGRES_PASSWORD: prefect
+      POSTGRES_DB: prefect
+      POSTGRES_USER: prefect
+    volumes:
+      - 'godigital_prefect_pg:/var/lib/postgresql/data'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect"]
+      retries: 3
+      timeout: 5s
+    networks:
+      - godigital-network
+
+  prefect-server:
+    container_name: godigital-prefect-server
+    build: 
+      context: ../../../godigital-prefect
+      dockerfile: server.Dockerfile
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    environment:
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_SERVER_CSRF_PROTECTION_ENABLED=false
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
+    ports:
+        - '${PREFECT_PORT}:4200'
+    networks:
+      - godigital-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4200/api/ready || exit 1"]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    container_name: godigital-frontend
+    build: 
+      context: ../../../godigital-frontend
+      dockerfile: Dockerfile
+      args:
+        TMP_PATH: /prefect-tmp/runner_storage
+    ports:
+      - '${NEXTJS_PORT}:3000'
+    restart: always
+    environment:
+      DATABASE_URL: '${PREFECT_ANALYTICS_APP_DATABASE_URL}'
+      NEXTJS_PORT: 3000
+      HASURA_PORT: '${HASURA_PORT}'
+      KEYCLOAK_PORT: '${KEYCLOAK_PORT}'
+      NEXTAUTH_SECRET: '${NEXTJS_NEXTAUTH_SECRET}'
+      NEXTAUTH_URL: '${NEXTJS_NEXTAUTH_URL}'
+      KEYCLOAK_ID: '${NEXTJS_KEYCLOAK_ID}'
+      KEYCLOAK_SECRET: '${NEXTJS_KEYCLOAK_SECRET}'
+      KEYCLOAK_ISSUER: '${NEXTJS_KEYCLOAK_ISSUER}'
+      LOG_LEVEL: '${NEXTJS_LOG_LEVEL}'
+      HASURA_SCHEMA_URL: '${NEXTJS_HASURA_SCHEMA_URL}'
+      HASURA_GRAPHQL_ADMIN_SECRET: '${HASURA_GRAPHQL_ADMIN_SECRET}'
+      NEXT_PUBLIC_HASURA_GQL_WS_URL: '${NEXTJS_NEXT_PUBLIC_HASURA_GQL_WS_URL}'
+      NEXT_PUBLIC_HASURA_GQL_HTTP_URL: '${NEXTJS_NEXT_PUBLIC_HASURA_GQL_HTTP_URL}'
+      NEXT_PUBLIC_HASURA_REST_URL: '${NEXTJS_NEXT_PUBLIC_HASURA_REST_URL}'
+      BACKEND_TOKEN_HEADER: '${NEXTJS_BACKEND_TOKEN_HEADER}'
+      BACKEND_TOKEN: '${NEXTJS_BACKEND_TOKEN}'
+      AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE: '${NEXTJS_AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE}'
+      PREFECT_URL: '${NEXTJS_PREFECT_URL}'
+      TMP_PATH: /prefect-tmp/runner_storage
+      NEXT_PUBLIC_FEEDBACK_EMAIL: '${FEEDBACK_EMAIL}'
+      KEYCLOAK_ADMIN_USER: '${NEXTJS_KEYCLOAK_ADMIN_USER}'
+      KEYCLOAK_ADMIN_PASSWORD: '${NEXTJS_KEYCLOAK_ADMIN_PASSWORD}'
+      KEYCLOAK_ADMIN_CLI_URL: '${NEXTJS_KEYCLOAK_ADMIN_CLI_URL}'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"      
+    volumes:
+      - godigital_shared:/prefect-tmp/runner_storage
+    networks:
+      - godigital-network
+
+volumes:
+  godigital_shared:
+  godigital_prefect_pg:
+
+networks:
+  godigital-network:
+    driver: bridge

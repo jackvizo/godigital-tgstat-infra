@@ -1,0 +1,12 @@
+table:
+  name: hourly_user_signups_virtual
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - signup_count
+        - hour
+      filter: {}
+      allow_aggregations: true
+    comment: ""

@@ -1,0 +1,5 @@
+function:
+  name: cohort_analysis_hasura
+  schema: public
+permissions:
+  - role: user

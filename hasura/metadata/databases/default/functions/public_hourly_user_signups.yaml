@@ -1,0 +1,5 @@
+function:
+  name: hourly_user_signups
+  schema: public
+permissions:
+  - role: user

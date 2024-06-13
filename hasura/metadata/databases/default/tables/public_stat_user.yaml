@@ -1,0 +1,3 @@
+table:
+  name: stat_user
+  schema: public

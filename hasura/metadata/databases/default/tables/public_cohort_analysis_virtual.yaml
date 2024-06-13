@@ -1,0 +1,14 @@
+table:
+  name: cohort_analysis_virtual
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - joined_count
+        - left_count
+        - join_date
+        - left_date
+      filter: {}
+      allow_aggregations: true
+    comment: ""
