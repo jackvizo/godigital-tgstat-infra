@@ -9,10 +9,11 @@ datasource db {
 }
 
 model user {
-  id                  String                @id @unique @db.Uuid
-  created_at          DateTime              @default(now())
-  user_tg_channel     user_tg_channel[]
-  user_tg_invite_link user_tg_invite_link[]
+  id                   String                 @id @unique @db.Uuid
+  created_at           DateTime               @default(now())
+  user_tg_channel      user_tg_channel[]
+  user_tg_invite_link  user_tg_invite_link[]
+  tg_invite_link_group tg_invite_link_group[]
 }
 
 model user_tg_channel {
@@ -25,9 +26,10 @@ model user_tg_channel {
 }
 
 model user_tg_invite_link {
-  pk             BigInt @id
-  user_id        String @db.Uuid
+  pk             BigInt  @id @default(autoincrement())
+  user_id        String  @db.Uuid
   tg_invite_link String
+  label          String?
 
   group_id BigInt
 
@@ -36,8 +38,11 @@ model user_tg_invite_link {
 }
 
 model tg_invite_link_group {
-  pk                  BigInt                @id
-  group_name          String
+  pk         BigInt @id @default(autoincrement())
+  group_name String
+  user_id    String @db.Uuid
+
+  user                user                  @relation(fields: [user_id], references: [id])
   user_tg_invite_link user_tg_invite_link[]
 }
 

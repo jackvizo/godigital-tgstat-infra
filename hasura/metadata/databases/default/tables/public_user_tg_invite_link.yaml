@@ -16,6 +16,7 @@ insert_permissions:
           _eq: X-Hasura-User-Id
       columns:
         - group_id
+        - label
         - tg_invite_link
         - user_id
     comment: ""
@@ -24,6 +25,7 @@ select_permissions:
     permission:
       columns:
         - group_id
+        - label
         - pk
         - tg_invite_link
         - user_id
@@ -37,6 +39,7 @@ update_permissions:
     permission:
       columns:
         - group_id
+        - label
         - tg_invite_link
         - user_id
       filter:
