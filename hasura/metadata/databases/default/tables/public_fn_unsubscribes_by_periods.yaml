@@ -1,0 +1,13 @@
+table:
+  name: fn_unsubscribes_by_periods
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - percentage
+        - count
+        - interval_label
+      filter: {}
+      allow_aggregations: true
+    comment: ""

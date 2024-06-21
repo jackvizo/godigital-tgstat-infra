@@ -1,3 +1,17 @@
 table:
   name: stat_reaction
   schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - pk
+        - tg_channel_id
+        - tg_post_id
+        - reaction_count
+        - reaction_emoticon_code
+        - reaction_emoticon
+        - timestamp
+      filter: {}
+      allow_aggregations: true
+    comment: ""

@@ -1,0 +1,11 @@
+table:
+  name: fn_get_avg_user_lifecycle
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - avg_lifecycle_days
+      filter: {}
+      allow_aggregations: true
+    comment: ""

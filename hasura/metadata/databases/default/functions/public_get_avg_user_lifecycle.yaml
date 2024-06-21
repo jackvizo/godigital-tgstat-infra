@@ -1,0 +1,5 @@
+function:
+  name: get_avg_user_lifecycle
+  schema: public
+permissions:
+  - role: user

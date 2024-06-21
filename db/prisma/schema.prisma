@@ -9,11 +9,10 @@ datasource db {
 }
 
 model user {
-  // id должен быть такой же как в keycloak
-  id         String   @id @unique @db.Uuid
-  created_at DateTime @default(now())
-
-  user_tg_channel user_tg_channel[]
+  id                  String                @id @unique @db.Uuid
+  created_at          DateTime              @default(now())
+  user_tg_channel     user_tg_channel[]
+  user_tg_invite_link user_tg_invite_link[]
 }
 
 model user_tg_channel {
@@ -23,6 +22,23 @@ model user_tg_channel {
   user user @relation(fields: [user_id], references: [id])
 
   @@id([user_id, tg_channel_id])
+}
+
+model user_tg_invite_link {
+  pk             BigInt @id
+  user_id        String @db.Uuid
+  tg_invite_link String
+
+  group_id BigInt
+
+  user                 user                 @relation(fields: [user_id], references: [id])
+  tg_invite_link_group tg_invite_link_group @relation(fields: [group_id], references: [pk])
+}
+
+model tg_invite_link_group {
+  pk                  BigInt                @id
+  group_name          String
+  user_tg_invite_link user_tg_invite_link[]
 }
 
 model stat_user {
@@ -76,25 +92,59 @@ model stat_reaction {
 }
 
 model config__tg_channel {
-  pk         BigInt   @id
-  created_at DateTime @default(now())
-
-  tg_channel_id   BigInt
-  tg_channel_name String
-
+  pk                          BigInt                        @id
+  created_at                  DateTime                      @default(now())
+  tg_channel_id               BigInt
+  tg_channel_name             String
   config__tg_bot_session_pool config__tg_bot_session_pool[]
 }
 
 model config__tg_bot_session_pool {
-  pk         BigInt   @id
-  created_at DateTime @default(now())
-
-  api_id        String
-  api_hash      String
-  phone_number  String
-  session_bytes Bytes?
-
+  pk                    BigInt              @id
+  created_at            DateTime            @default(now())
+  api_id                String
+  api_hash              String
+  phone_number          String
+  session_bytes         Bytes?
   status                String              @default("enabled")
-  config__tg_channel    config__tg_channel? @relation(fields: [config__tg_channel_pk], references: [pk])
   config__tg_channel_pk BigInt?
+  config__tg_channel    config__tg_channel? @relation(fields: [config__tg_channel_pk], references: [pk])
+}
+
+model fn_cohort_analysis {
+  join_date    DateTime? @db.Date
+  left_date    DateTime? @db.Date
+  joined_count BigInt?
+  left_count   BigInt?
+
+  @@ignore
+}
+
+model fn_get_avg_user_lifecycle {
+  avg_lifecycle_days Float?
+
+  @@ignore
+}
+
+model fn_unsubscribes_by_links {
+  invite_link  String?
+  joined_count BigInt?
+  left_count   BigInt?
+
+  @@ignore
+}
+
+model fn_unsubscribes_by_periods {
+  interval_label String?
+  count          Int?
+  percentage     Float?
+
+  @@ignore
+}
+
+model fn_users_by_period {
+  time_bucket DateTime? @db.Timestamp(6)
+  count       BigInt?
+
+  @@ignore
 }

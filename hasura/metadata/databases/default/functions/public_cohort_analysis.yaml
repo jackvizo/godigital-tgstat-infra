@@ -1,0 +1,5 @@
+function:
+  name: cohort_analysis
+  schema: public
+permissions:
+  - role: user

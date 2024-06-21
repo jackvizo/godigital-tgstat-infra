@@ -1,0 +1,5 @@
+function:
+  name: unsubscribes_by_links
+  schema: public
+permissions:
+  - role: user

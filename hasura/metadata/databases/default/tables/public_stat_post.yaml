@@ -1,3 +1,29 @@
 table:
   name: stat_post
   schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - pk
+        - tg_channel_id
+        - tg_post_id
+        - comments_channels_count
+        - comments_messages_count
+        - comments_messages_count_1h
+        - comments_messages_count_24h
+        - comments_users_count
+        - forwards
+        - reaction_24h
+        - reactions_1h
+        - total_reactions_count
+        - view_24h
+        - views
+        - views_1h
+        - link
+        - media
+        - message
+        - timestamp
+      filter: {}
+      allow_aggregations: true
+    comment: ""

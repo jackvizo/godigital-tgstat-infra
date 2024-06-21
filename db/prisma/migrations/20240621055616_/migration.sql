@@ -97,6 +97,39 @@ CREATE TABLE "config__tg_bot_session_pool" (
     CONSTRAINT "config__tg_bot_session_pool_pkey" PRIMARY KEY ("pk")
 );
 
+-- CreateTable
+CREATE TABLE "fn_cohort_analysis" (
+    "join_date" DATE,
+    "left_date" DATE,
+    "joined_count" BIGINT,
+    "left_count" BIGINT
+);
+
+-- CreateTable
+CREATE TABLE "fn_get_avg_user_lifecycle" (
+    "avg_lifecycle_days" DOUBLE PRECISION
+);
+
+-- CreateTable
+CREATE TABLE "fn_unsubscribes_by_links" (
+    "invite_link" TEXT,
+    "joined_count" BIGINT,
+    "left_count" BIGINT
+);
+
+-- CreateTable
+CREATE TABLE "fn_unsubscribes_by_periods" (
+    "interval_label" TEXT,
+    "count" INTEGER,
+    "percentage" DOUBLE PRECISION
+);
+
+-- CreateTable
+CREATE TABLE "fn_users_by_period" (
+    "time_bucket" TIMESTAMP(6),
+    "count" BIGINT
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_id_key" ON "user"("id");
 

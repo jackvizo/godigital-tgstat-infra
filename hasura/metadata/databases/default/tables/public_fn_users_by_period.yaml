@@ -1,0 +1,12 @@
+table:
+  name: fn_users_by_period
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - count
+        - time_bucket
+      filter: {}
+      allow_aggregations: true
+    comment: ""

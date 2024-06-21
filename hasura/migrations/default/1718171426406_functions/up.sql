@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS fn_users_by_period(
   time_bucket timestamp,
-  signup_count bigint
+  count bigint
 );
 
 CREATE OR REPLACE FUNCTION public.user_signups_by_period(start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[], time_period text)
@@ -52,8 +52,8 @@ BEGIN
         'month'
       ELSE
         'hour' -- default to 'hour' if an invalid value is provided
-      END, joined_at) AS time_bucket,
-    COUNT(*) AS signup_count
+      END, left_at) AS time_bucket,
+    COUNT(*) AS count
   FROM
     stat_user
   WHERE
@@ -175,6 +175,8 @@ BEGIN
     intervals i
   LEFT JOIN stat_user su ON EXTRACT(EPOCH FROM(su.left_at - su.joined_at)) BETWEEN i.interval_start AND i.interval_end
     AND su.tg_channel_id = ANY(tg_channel_ids)
+    AND su.joined_at >= start_date
+    AND su.left_at <= end_date
 GROUP BY
   i.interval_label,
   i.interval_start
@@ -190,7 +192,7 @@ CREATE TABLE IF NOT EXISTS "public"."fn_cohort_analysis"(
   "left_count" int8
 );
 
-CREATE OR REPLACE FUNCTION public.cohort_analysis(start_date date, end_date date, tg_channel_id bigint)
+CREATE OR REPLACE FUNCTION public.cohort_analysis(start_date date, end_date date, tg_channel_ids bigint[])
   RETURNS SETOF fn_cohort_analysis
   LANGUAGE plpgsql
   STABLE
@@ -204,8 +206,8 @@ BEGIN
       stat_user
     WHERE
       joined_at IS NOT NULL
-      AND stat_user.tg_channel_id = $3
-      AND joined_at BETWEEN $1 AND $2
+      AND stat_user.tg_channel_id = ANY(tg_channel_ids)
+      AND joined_at BETWEEN start_date AND end_date
     GROUP BY
       date_trunc('day', joined_at)::date
 ),
@@ -219,16 +221,16 @@ left_users AS(
   WHERE
     left_at IS NOT NULL
     AND joined_at IS NOT NULL
-    AND stat_user.tg_channel_id = $3
-    AND joined_at BETWEEN $1 AND $2
-    AND left_at BETWEEN $1 AND $2
+    AND stat_user.tg_channel_id = ANY(tg_channel_ids)
+    AND joined_at BETWEEN start_date AND end_date
+    AND left_at BETWEEN start_date AND end_date
   GROUP BY
     date_trunc('day', left_at)::date,
   date_trunc('day', joined_at)::date
 ),
 all_dates AS(
   SELECT
-    generate_series($1::timestamp, $2::timestamp, '1 day'::interval) AS date
+    generate_series(start_date::timestamp, end_date::timestamp, '1 day'::interval) AS date
 ),
 cohort_analysis AS(
   SELECT
@@ -257,6 +259,27 @@ FROM
 ORDER BY
   join_date,
   left_date;
+END;
+$function$;
+
+CREATE TABLE fn_get_avg_user_lifecycle(
+  avg_lifecycle_days double precision
+);
+
+CREATE OR REPLACE FUNCTION public.get_avg_user_lifecycle(tg_channel_ids bigint[])
+  RETURNS SETOF fn_get_avg_user_lifecycle
+  LANGUAGE plpgsql
+  STABLE
+  AS $function$
+BEGIN
+  RETURN QUERY
+  SELECT
+    CAST(AVG(EXTRACT(EPOCH FROM(left_at - joined_at))) / 86400 AS DOUBLE PRECISION) AS avg_lifecycle_days
+  FROM
+    stat_user
+  WHERE
+    tg_channel_id = ANY(tg_channel_ids)
+    AND left_at IS NOT NULL;
 END;
 $function$;
 

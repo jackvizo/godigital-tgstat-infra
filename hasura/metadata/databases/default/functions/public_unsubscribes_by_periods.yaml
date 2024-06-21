@@ -1,0 +1,5 @@
+function:
+  name: unsubscribes_by_periods
+  schema: public
+permissions:
+  - role: user

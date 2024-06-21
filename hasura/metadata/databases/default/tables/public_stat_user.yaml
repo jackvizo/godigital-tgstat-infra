@@ -1,3 +1,25 @@
 table:
   name: stat_user
   schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - pk
+        - tg_channel_id
+        - tg_user_id
+        - is_joined_by_link
+        - premium
+        - scam
+        - verified
+        - first_name
+        - invite_link
+        - last_name
+        - phone
+        - username
+        - joined_at
+        - left_at
+        - timestamp
+      filter: {}
+      allow_aggregations: true
+    comment: ""

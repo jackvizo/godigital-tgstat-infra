@@ -1,0 +1,5 @@
+function:
+  name: user_signups_by_period
+  schema: public
+permissions:
+  - role: user

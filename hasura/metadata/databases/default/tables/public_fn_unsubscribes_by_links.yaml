@@ -1,0 +1,13 @@
+table:
+  name: fn_unsubscribes_by_links
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - joined_count
+        - left_count
+        - invite_link
+      filter: {}
+      allow_aggregations: true
+    comment: ""
