@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS public.fn_unsubscribes_by_periods(
 );
 
 CREATE OR REPLACE FUNCTION public.unsubscribes_by_periods(start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[])
-  RETURNS SETOF public.fn_unsubscribes_by_periods
+  RETURNS SETOF fn_unsubscribes_by_periods
   LANGUAGE plpgsql
   STABLE
   AS $function$
@@ -169,8 +169,8 @@ BEGIN
 )
   SELECT
     i.interval_label,
-    COUNT(su.tg_user_id) AS count,
-    ROUND((COUNT(su.tg_user_id) * 100.0 / NULLIF(SUM(COUNT(su.tg_user_id)) OVER(), 0)), 2) AS percentage
+    COUNT(su.tg_user_id)::integer AS count,
+    ROUND((COUNT(su.tg_user_id) * 100.0 / NULLIF(SUM(COUNT(su.tg_user_id)) OVER(), 0)), 2)::double precision AS percentage
   FROM
     intervals i
   LEFT JOIN stat_user su ON EXTRACT(EPOCH FROM(su.left_at - su.joined_at)) BETWEEN i.interval_start AND i.interval_end
