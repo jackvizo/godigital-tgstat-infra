@@ -262,7 +262,7 @@ ORDER BY
 END;
 $function$;
 
-CREATE TABLE fn_get_avg_user_lifecycle(
+CREATE TABLE IF NOT EXISTS fn_get_avg_user_lifecycle(
   avg_lifecycle_days double precision
 );
 

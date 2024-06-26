@@ -47,7 +47,7 @@ model tg_invite_link_group {
 }
 
 model stat_user {
-  pk                BigInt    @id
+  pk                BigInt    @id @default(autoincrement())
   timestamp         DateTime  @default(now())
   joined_at         DateTime?
   left_at           DateTime?
@@ -65,7 +65,7 @@ model stat_user {
 }
 
 model stat_post {
-  pk                          BigInt   @id
+  pk                          BigInt   @id @default(autoincrement())
   timestamp                   DateTime @default(now())
   tg_post_id                  BigInt
   tg_channel_id               BigInt
@@ -87,7 +87,7 @@ model stat_post {
 }
 
 model stat_reaction {
-  pk                     BigInt   @id
+  pk                     BigInt   @id @default(autoincrement())
   timestamp              DateTime @default(now())
   tg_post_id             BigInt
   tg_channel_id          BigInt
@@ -97,7 +97,7 @@ model stat_reaction {
 }
 
 model config__tg_channel {
-  pk                          BigInt                        @id
+  pk                          BigInt                        @id @default(autoincrement())
   created_at                  DateTime                      @default(now())
   tg_channel_id               BigInt
   tg_channel_name             String
@@ -105,7 +105,7 @@ model config__tg_channel {
 }
 
 model config__tg_bot_session_pool {
-  pk                    BigInt              @id
+  pk                    BigInt              @id @default(autoincrement())
   created_at            DateTime            @default(now())
   api_id                String
   api_hash              String

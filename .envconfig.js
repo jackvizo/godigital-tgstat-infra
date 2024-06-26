@@ -1,5 +1,5 @@
-const path = require('path')
-const projectRoot = path.join(__dirname, '..');
+const path = require("path");
+const projectRoot = path.join(__dirname, "..");
 const infraRoot = path.join(__dirname);
 
 const postgresEnv = {
@@ -8,19 +8,19 @@ const postgresEnv = {
   POSTGRES_DB: process.env.POSTGRES_DB,
   POSTGRES_USER: process.env.POSTGRES_USER,
   POSTGRES_HOST: process.env.POSTGRES_HOST,
-}
+};
 
 const databaseNetworkEnv = {
   HOST_DOCKER_INTERNAL: process.env.HOST_DOCKER_INTERNAL,
   DATABASE_URL_IN_HOST_MACHINE_NETWORK: process.env.DATABASE_URL_IN_HOST_MACHINE_NETWORK,
-  DATABASE_URL_IN_DOCKER_NETWORK: process.env.DATABASE_URL_IN_DOCKER_NETWORK
-}
+  DATABASE_URL_IN_DOCKER_NETWORK: process.env.DATABASE_URL_IN_DOCKER_NETWORK,
+};
 
 const prismaEnv = {
   ...postgresEnv,
   ...databaseNetworkEnv,
-  DATABASE_URL: process.env.PRISMA_DATABASE_URL
-}
+  DATABASE_URL: process.env.PRISMA_DATABASE_URL,
+};
 
 const keycloakEnv = {
   HOST_DOCKER_INTERNAL: process.env.HOST_DOCKER_INTERNAL,
@@ -36,8 +36,8 @@ const keycloakEnv = {
   KEYCLOAK_USER: process.env.KEYCLOAK_USER,
   KEYCLOAK_PASSWORD: process.env.KEYCLOAK_PASSWORD,
 
-  KEYCLOAK_GODIGITAL_HOSTNAME: process.env.KEYCLOAK_GODIGITAL_HOSTNAME
-}
+  KEYCLOAK_GODIGITAL_HOSTNAME: process.env.KEYCLOAK_GODIGITAL_HOSTNAME,
+};
 
 const hasuraEnv = {
   ...databaseNetworkEnv,
@@ -51,11 +51,11 @@ const hasuraEnv = {
   NEXTJS_BACKEND_TOKEN: process.env.NEXTJS_BACKEND_TOKEN,
   HASURA_PREFECT_URL: process.env.HASURA_PREFECT_URL,
   HASURA_GRAPHQL_CORS_DOMAIN: process.env.HASURA_GRAPHQL_CORS_DOMAIN,
-}
+};
 
 const prefectEnv = {
   ANALYTICS_APP_DATABASE_URL: process.env.PREFECT_ANALYTICS_APP_DATABASE_URL,
-}
+};
 
 const frontendEnv = {
   NEXTJS_PORT: process.env.NEXTJS_PORT,
@@ -82,9 +82,8 @@ const frontendEnv = {
   NEXT_PUBLIC_FEEDBACK_EMAIL: process.env.FEEDBACK_EMAIL,
   KEYCLOAK_ADMIN_USER: process.env.NEXTJS_KEYCLOAK_ADMIN_USER,
   KEYCLOAK_ADMIN_PASSWORD: process.env.NEXTJS_KEYCLOAK_ADMIN_PASSWORD,
-  KEYCLOAK_ADMIN_CLI_URL: process.env.NEXTJS_KEYCLOAK_ADMIN_CLI_URL
-}
-
+  KEYCLOAK_ADMIN_CLI_URL: process.env.NEXTJS_KEYCLOAK_ADMIN_CLI_URL,
+};
 
 /**
  * @type {{services: { env: Partial<NodeJS.ProcessEnv>, path: string, name: string; envFilename?: string }[]}}
@@ -92,8 +91,8 @@ const frontendEnv = {
 const config = {
   services: [
     {
-      name: 'frontend',
-      path: path.join(projectRoot, 'godigital-frontend'),
+      name: "frontend",
+      path: path.join(projectRoot, "godigital-frontend"),
       env: {
         ...frontendEnv,
         PRISMA_OUT: process.env.PRISMA_OUT,
@@ -101,16 +100,16 @@ const config = {
       },
     },
     {
-      name: 'prisma',
-      path: path.join(infraRoot, 'db'),
+      name: "prisma",
+      path: path.join(infraRoot, "db"),
       env: {
         ...prismaEnv,
         PRISMA_OUT: process.env.PRISMA_OUT,
-      }
+      },
     },
     {
-      name: 'docker-local',
-      path: path.join(infraRoot, 'docker', 'godigital-docker'),
+      name: "docker-local",
+      path: path.join(infraRoot, "docker", "godigital-docker"),
       env: {
         ...postgresEnv,
         ...keycloakEnv,
@@ -156,8 +155,8 @@ const config = {
       },
     },
     {
-      name: 'docker-prod',
-      path: path.join(infraRoot, 'docker', 'godigital-docker-prod'),
+      name: "docker-prod",
+      path: path.join(infraRoot, "docker", "godigital-docker-prod"),
       env: {
         ...keycloakEnv,
         ...hasuraEnv,
@@ -197,20 +196,31 @@ const config = {
       },
     },
     {
-      name: 'hasura-cli',
-      path: path.join(infraRoot, 'hasura'),
+      name: "hasura-cli",
+      path: path.join(infraRoot, "hasura"),
       env: {
-        ...hasuraEnv
+        ...hasuraEnv,
       },
     },
     {
-      name: 'prefect',
-      path: path.join(projectRoot, 'godigital-prefect'),
+      name: "prefect",
+      path: path.join(projectRoot, "godigital-prefect"),
       env: {
         PORT: process.env.PREFECT_PORT,
-        ...prefectEnv
-      }
-    }
+        ...prefectEnv,
+      },
+    },
+    {
+      name: "tests",
+      path: path.join(projectRoot, "godigital-tests"),
+      env: {
+        DB_USER: postgresEnv.POSTGRES_USER,
+        DB_HOST: postgresEnv.POSTGRES_HOST,
+        DB_DATABASE: postgresEnv.POSTGRES_DB,
+        DB_PASSWORD: postgresEnv.POSTGRES_PASSWORD,
+        DB_PORT: postgresEnv.POSTGRES_PORT,
+      },
+    },
   ],
-}
+};
 module.exports = config;
