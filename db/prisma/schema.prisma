@@ -14,6 +14,15 @@ model user {
   user_tg_channel      user_tg_channel[]
   user_tg_invite_link  user_tg_invite_link[]
   tg_invite_link_group tg_invite_link_group[]
+  user_phone_number    user_phone_number[]
+}
+
+model user_phone_number {
+  pk      BigInt @id @default(autoincrement())
+  user_id String @db.Uuid
+
+  phone_number String
+  user         user   @relation(fields: [user_id], references: [id])
 }
 
 model user_tg_channel {
