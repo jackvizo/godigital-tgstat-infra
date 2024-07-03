@@ -53,8 +53,13 @@ const hasuraEnv = {
   HASURA_GRAPHQL_CORS_DOMAIN: process.env.HASURA_GRAPHQL_CORS_DOMAIN,
 };
 
-const prefectEnv = {
-  ANALYTICS_APP_DATABASE_URL: process.env.PREFECT_ANALYTICS_APP_DATABASE_URL,
+const tgstatBotEnv = {
+  DB_HOST: process.env.TGSTAT_BOT_DB_HOST,
+  DB_PORT: process.env.TGSTAT_BOT_DB_PORT,
+  DB_USER: process.env.TGSTAT_BOT_DB_USER,
+  DB_PASSWORD: process.env.TGSTAT_BOT_DB_PASSWORD,
+  DB_NAME: process.env.TGSTAT_BOT_DB_NAME,
+  PREFECT_SERVER_URL: process.env.PREFECT_URL,
 };
 
 const frontendEnv = {
@@ -86,7 +91,15 @@ const frontendEnv = {
 };
 
 /**
- * @type {{services: { env: Partial<NodeJS.ProcessEnv>, path: string, name: string; envFilename?: string }[]}}
+ * @type {{
+ *  services: {
+ *    env: Partial<NodeJS.ProcessEnv>;
+ *    path: string, name: string;
+ *    envFilename?: string;
+ *    example?: Partial<NodeJS.ProcessEnv>;
+ *    test?: Partial<NodeJS.ProcessEnv>;
+ *  }[]
+ * }}
  * */
 const config = {
   services: [
@@ -203,11 +216,18 @@ const config = {
       },
     },
     {
-      name: "prefect",
-      path: path.join(projectRoot, "godigital-prefect"),
+      name: "tgstats-bot",
+      path: path.join(projectRoot, "godigital-tgstats-bot"),
       env: {
         PORT: process.env.PREFECT_PORT,
-        ...prefectEnv,
+        ...tgstatBotEnv,
+      },
+      test: {
+        TEST_API_ID: "17349",
+        TEST_API_HASH: "344583e45741c457fe1862106095a5eb",
+        TEST_TG_SERVER_DC: "0",
+        TEST_TG_SERVER_IP: "149.154.167.40",
+        TEST_TG_SERVER_PORT: "80",
       },
     },
     {

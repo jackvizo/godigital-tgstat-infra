@@ -1,6 +1,6 @@
 const fs = require("fs");
-const path = require('path');
-const {envconfig, env, loadedEnv} = require('./bootstrap');
+const path = require("path");
+const { envconfig, env, loadedEnv } = require("./bootstrap");
 
 function filterUndefined(obj) {
   const filtered = {};
@@ -17,7 +17,7 @@ function filterUndefined(obj) {
 function compileTemplate(template, depth = 0) {
   const maxDepth = 10;
   if (depth > maxDepth) {
-    throw new Error('Max template depth exceeded, possible circular reference.');
+    throw new Error("Max template depth exceeded, possible circular reference.");
   }
 
   let compiled = template;
@@ -27,7 +27,7 @@ function compileTemplate(template, depth = 0) {
   while ((match = regex.exec(compiled)) !== null) {
     const fullMatch = match[0];
     const variableName = match[1];
-    const variableValue = process.env[variableName] || '';
+    const variableValue = process.env[variableName] || "";
 
     compiled = compiled.replace(fullMatch, variableValue);
   }
@@ -59,18 +59,28 @@ function run() {
     return;
   }
 
-  const generatedPath = path.join(__dirname, 'generated')
-  const infraPath = path.join(__dirname, '..',)
+  const generatedPath = path.join(__dirname, "generated");
+  const infraPath = path.join(__dirname, "..");
 
-  fs.mkdirSync(path.join(generatedPath, env), {recursive: true, });
+  fs.mkdirSync(path.join(generatedPath, env), { recursive: true });
 
   for (const service of envconfig.services) {
     fs.writeFileSync(path.join(generatedPath, env, `.env.${service.name}`), objToEnvFileString(service.env));
-    fs.writeFileSync(path.join(generatedPath, env, `.env.example.${service.name}`), objToEnvEmptyValues(service.env));
+    if (service.example) {
+      fs.writeFileSync(
+        path.join(generatedPath, env, `.env.example.${service.name}`),
+        objToEnvFileString(service.example)
+      );
+    } else {
+      fs.writeFileSync(path.join(generatedPath, env, `.env.example.${service.name}`), objToEnvEmptyValues(service.env));
+    }
+    if (service.test) {
+      fs.writeFileSync(path.join(generatedPath, env, `.env.test.${service.name}`), objToEnvFileString(service.test));
+    }
     console.log(`Created ${env} env for service ${service.name}`);
   }
 
   fs.writeFileSync(path.join(infraPath, `.env.${env}.example`), objToEnvEmptyValues(loadedEnv.parsed));
 }
 
-run()
+run();

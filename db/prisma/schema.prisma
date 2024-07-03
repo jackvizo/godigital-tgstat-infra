@@ -62,12 +62,14 @@ model stat_user {
   is_joined_by_link Boolean?
   phone             String?
   invite_link       String?
+
+  @@unique([tg_user_id, tg_channel_id])
 }
 
 model stat_post {
   pk                          BigInt   @id @default(autoincrement())
   timestamp                   DateTime @default(now())
-  tg_post_id                  BigInt
+  tg_post_id                  BigInt   @unique
   tg_channel_id               BigInt
   message                     String
   views                       Int
@@ -89,7 +91,7 @@ model stat_post {
 model stat_reaction {
   pk                     BigInt   @id @default(autoincrement())
   timestamp              DateTime @default(now())
-  tg_post_id             BigInt
+  tg_post_id             BigInt   @unique
   tg_channel_id          BigInt
   reaction_count         Int
   reaction_emoticon      String
@@ -111,6 +113,7 @@ model config__tg_bot_session_pool {
   api_hash              String
   phone_number          String
   session_bytes         Bytes?
+  session_str           String?
   status                String              @default("enabled")
   config__tg_channel_pk BigInt?
   config__tg_channel    config__tg_channel? @relation(fields: [config__tg_channel_pk], references: [pk])

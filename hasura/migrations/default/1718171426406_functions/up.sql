@@ -201,7 +201,7 @@ BEGIN
   RETURN QUERY WITH joined_users AS(
     SELECT
       date_trunc('day', joined_at)::date AS join_date,
-      COUNT(*)::bigint AS joined_count
+      COUNT(DISTINCT tg_user_id)::bigint AS joined_count
     FROM
       stat_user
     WHERE
@@ -215,7 +215,7 @@ left_users AS(
   SELECT
     date_trunc('day', left_at)::date AS left_date,
     date_trunc('day', joined_at)::date AS join_date,
-    COUNT(*)::bigint AS left_count
+    COUNT(DISTINCT tg_user_id)::bigint AS left_count
   FROM
     stat_user
   WHERE

@@ -121,44 +121,44 @@ services:
       - godigital_kk_pg:/var/lib/postgresql/data
       - ./keycloak/postgres-init-scripts:/docker-entrypoint-initdb.d
   
-  # prefect-postgres:
-  #   build: 
-  #     context: ../../../godigital-prefect
-  #     dockerfile: postgres.Dockerfile
-  #   container_name: godigital-prefect-postgres
-  #   environment:
-  #     POSTGRES_PASSWORD: prefect
-  #     POSTGRES_DB: prefect
-  #     POSTGRES_USER: prefect
-  #   volumes:
-  #     - 'godigital_prefect_pg:/var/lib/postgresql/data'
-  #   healthcheck:
-  #     test: ["CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect"]
-  #     retries: 3
-  #     timeout: 5s
-  #   networks:
-  #     - godigital-network
+  prefect-postgres:
+    build: 
+      context: ../../../godigital-tgstat-bot
+      dockerfile: postgres.Dockerfile
+    container_name: godigital-prefect-postgres
+    environment:
+      POSTGRES_PASSWORD: prefect
+      POSTGRES_DB: prefect
+      POSTGRES_USER: prefect
+    volumes:
+      - 'godigital_prefect_pg:/var/lib/postgresql/data'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect"]
+      retries: 3
+      timeout: 5s
+    networks:
+      - godigital-network
 
-  # prefect-server:
-  #   container_name: godigital-prefect-server
-  #   build: 
-  #     context: ../../../godigital-prefect
-  #     dockerfile: server.Dockerfile
-  #   entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
-  #   environment:
-  #     - PREFECT_SERVER_API_HOST=0.0.0.0
-  #     - PREFECT_SERVER_CSRF_PROTECTION_ENABLED=false
-  #     - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
-  #   ports:
-  #       - '${PREFECT_PORT}:4200'
-  #   networks:
-  #     - godigital-network
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "wget -qO- http://localhost:4200/api/ready || exit 1"]
-  #     start_period: 5s
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  prefect-server:
+    container_name: godigital-prefect-server
+    build: 
+      context: ../../../godigital-tgstat-bot
+      dockerfile: server.Dockerfile
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    environment:
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_SERVER_CSRF_PROTECTION_ENABLED=false
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
+    ports:
+        - '${PREFECT_PORT}:4200'
+    networks:
+      - godigital-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4200/api/ready || exit 1"]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
     container_name: godigital-frontend
