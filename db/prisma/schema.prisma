@@ -21,8 +21,9 @@ model user_phone_number {
   pk      BigInt @id @default(autoincrement())
   user_id String @db.Uuid
 
+  status       String?
   phone_number String
-  user         user   @relation(fields: [user_id], references: [id])
+  user         user    @relation(fields: [user_id], references: [id])
 }
 
 model user_tg_channel {

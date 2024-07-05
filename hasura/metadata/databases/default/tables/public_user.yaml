@@ -9,6 +9,13 @@ array_relationships:
         table:
           name: tg_invite_link_group
           schema: public
+  - name: user_phone_numbers
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_phone_number
+          schema: public
   - name: user_tg_channels
     using:
       foreign_key_constraint_on:
@@ -23,3 +30,13 @@ array_relationships:
         table:
           name: user_tg_invite_link
           schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""

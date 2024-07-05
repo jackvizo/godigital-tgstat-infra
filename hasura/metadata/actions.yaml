@@ -1,6 +1,105 @@
-actions: []
+actions:
+  - name: confirm_2fa
+    definition:
+      kind: synchronous
+      handler: '{{PREFECT_URL}}/api/flow_runs'
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "phone_number": {{$body.input.arg1.phone_number}},
+              "user_id": {{$session_variables['x-hasura-user-id']}},
+              "code_2fa": {{$body.input.arg1.code_2fa}},
+              "cloud_password": {{$body.input.arg1.cloud_password}}
+            }
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        url: '{{$base_url}}/{{$body.input.arg1.flow_run_id}}/resume'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if $response.status == 200 }}
+              {
+                "status": "success",
+                "error_text": null
+              }
+            {{ else }}
+              {
+                "status": "success",
+                "error_text": {{$body.error}}
+              }
+            {{ end }}
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
+  - name: get_tg_auth_flow_id
+    definition:
+      kind: ""
+      handler: '{{PREFECT_URL}}/api/flows/name/tg-auth'
+      request_transform:
+        method: GET
+        query_params: {}
+        request_headers:
+          add_headers: {}
+          remove_headers:
+            - content-type
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
+  - name: request_2fa
+    definition:
+      kind: synchronous
+      handler: '{{PREFECT_URL}}/api/flow_runs'
+      forward_client_headers: true
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "flow_id": {{$body.input.arg1.flow_run_id}},
+              "state": "RUNNING",
+              "parameters": {
+                "user_id": {{$session_variables['x-hasura-user-id']}},
+                "phone_number": {{$body.input.arg1.phone_number}}
+              }
+            }
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if $response.status == 200 }}
+              {
+                "status": "success",
+                "flow_run_id": {{$body.flow_run_id}},
+                "error_text": null
+              }
+            {{ else }}
+              {
+                "status": "error",
+                "error_text": {{$body.error}}
+              }
+            {{ end }}
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+    - name: Request2FAInput
+    - name: Confirm2FAInput
+  objects:
+    - name: Request2FAOutput
+    - name: Confirm2FAOutput
+    - name: GetTgAuthFlowIdOutput
   scalars: []

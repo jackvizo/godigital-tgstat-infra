@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS "public"."fn_cohort_analysis"(
   "left_count" int8
 );
 
-CREATE OR REPLACE FUNCTION public.cohort_analysis(start_date date, end_date date, tg_channel_ids bigint[])
+CREATE OR REPLACE FUNCTION public.cohort_analysis(start_date date, end_date date, tg_channel_ids bigint[], time_bucket text)
   RETURNS SETOF fn_cohort_analysis
   LANGUAGE plpgsql
   STABLE
@@ -200,7 +200,11 @@ CREATE OR REPLACE FUNCTION public.cohort_analysis(start_date date, end_date date
 BEGIN
   RETURN QUERY WITH joined_users AS(
     SELECT
-      date_trunc('day', joined_at)::date AS join_date,
+      CASE WHEN time_bucket = 'month' THEN
+        date_trunc('month', joined_at)::date
+      ELSE
+        date_trunc('day', joined_at)::date
+      END AS join_date,
       COUNT(DISTINCT tg_user_id)::bigint AS joined_count
     FROM
       stat_user
@@ -209,12 +213,24 @@ BEGIN
       AND stat_user.tg_channel_id = ANY(tg_channel_ids)
       AND joined_at BETWEEN start_date AND end_date
     GROUP BY
-      date_trunc('day', joined_at)::date
+      CASE WHEN time_bucket = 'month' THEN
+        date_trunc('month', joined_at)::date
+      ELSE
+        date_trunc('day', joined_at)::date
+      END
 ),
 left_users AS(
   SELECT
-    date_trunc('day', left_at)::date AS left_date,
-    date_trunc('day', joined_at)::date AS join_date,
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', left_at)::date
+    ELSE
+      date_trunc('day', left_at)::date
+    END AS left_date,
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', joined_at)::date
+    ELSE
+      date_trunc('day', joined_at)::date
+    END AS join_date,
     COUNT(DISTINCT tg_user_id)::bigint AS left_count
   FROM
     stat_user
@@ -225,12 +241,32 @@ left_users AS(
     AND joined_at BETWEEN start_date AND end_date
     AND left_at BETWEEN start_date AND end_date
   GROUP BY
-    date_trunc('day', left_at)::date,
-  date_trunc('day', joined_at)::date
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', left_at)::date
+    ELSE
+      date_trunc('day', left_at)::date
+    END,
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', joined_at)::date
+    ELSE
+      date_trunc('day', joined_at)::date
+    END
 ),
 all_dates AS(
   SELECT
-    generate_series(start_date::timestamp, end_date::timestamp, '1 day'::interval) AS date
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', gs)::date
+    ELSE
+      gs::date
+    END AS date
+  FROM
+    generate_series(start_date::timestamp, end_date::timestamp, '1 day'::interval) AS gs
+  GROUP BY
+    CASE WHEN time_bucket = 'month' THEN
+      date_trunc('month', gs)::date
+    ELSE
+      gs::date
+    END
 ),
 cohort_analysis AS(
   SELECT
@@ -238,9 +274,9 @@ cohort_analysis AS(
     d.date AS left_date,
     j.joined_count,
     COALESCE(l.left_count, 0) AS left_count
-FROM
-  joined_users j
-  CROSS JOIN all_dates d
+  FROM
+    joined_users j
+    CROSS JOIN all_dates d
     LEFT JOIN left_users l ON j.join_date = l.join_date
       AND d.date = l.left_date
   WHERE

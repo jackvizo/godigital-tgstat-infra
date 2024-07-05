@@ -1,0 +1,43 @@
+type Mutation {
+  confirm_2fa(
+    arg1: Confirm2FAInput!
+  ): Confirm2FAOutput
+}
+
+type Query {
+  get_tg_auth_flow_id: GetTgAuthFlowIdOutput
+}
+
+type Mutation {
+  request_2fa(
+    arg1: Request2FAInput!
+  ): Request2FAOutput
+}
+
+input Request2FAInput {
+  phone_number: String!
+  flow_id: String!
+}
+
+input Confirm2FAInput {
+  flow_run_id: String!
+  phone_number: String!
+  code_2fa: String!
+  cloud_password: String
+}
+
+type Request2FAOutput {
+  status: String!
+  flow_run_id: String
+  error_text: String
+}
+
+type Confirm2FAOutput {
+  status: String!
+  error_text: String
+}
+
+type GetTgAuthFlowIdOutput {
+  flow_id: String!
+}
+
