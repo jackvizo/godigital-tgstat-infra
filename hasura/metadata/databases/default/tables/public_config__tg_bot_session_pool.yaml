@@ -1,0 +1,31 @@
+table:
+  name: config__tg_bot_session_pool
+  schema: public
+object_relationships:
+  - name: user_phone_number
+    using:
+      manual_configuration:
+        column_mapping:
+          phone_number: phone_number
+        insertion_order: null
+        remote_table:
+          name: user_phone_number
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - phone_number
+      filter:
+        user_phone_number:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_phone_number:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""

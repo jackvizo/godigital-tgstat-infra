@@ -5,7 +5,13 @@ type Mutation {
 }
 
 type Query {
-  get_tg_auth_flow_id: GetTgAuthFlowIdOutput
+  flow_run(
+    arg1: FlowRunInput!
+  ): FlowRunOutput
+}
+
+type Query {
+  get_tg_auth_deployment_id: GetTgAuthDeploymentIdOutput
 }
 
 type Mutation {
@@ -16,14 +22,19 @@ type Mutation {
 
 input Request2FAInput {
   phone_number: String!
-  flow_id: String!
+  api_id: String!
+  api_hash: String!
+  deployment_id: String!
 }
 
 input Confirm2FAInput {
   flow_run_id: String!
-  phone_number: String!
   code_2fa: String!
   cloud_password: String
+}
+
+input FlowRunInput {
+  flow_run_id: String!
 }
 
 type Request2FAOutput {
@@ -39,5 +50,13 @@ type Confirm2FAOutput {
 
 type GetTgAuthFlowIdOutput {
   flow_id: String!
+}
+
+type GetTgAuthDeploymentIdOutput {
+  deployment_id: String!
+}
+
+type FlowRunOutput {
+  state: String!
 }
 

@@ -165,6 +165,12 @@ const config = {
         PREFECT_SMTP_PORT: process.env.SMTP_PORT,
         PREFECT_SMTP_USERNAME: process.env.SMTP_USERNAME,
         PREFECT_SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+
+        TGSTAT_BOT_DB_HOST: process.env.TGSTAT_BOT_DB_HOST,
+        TGSTAT_BOT_DB_PORT: process.env.TGSTAT_BOT_DB_PORT,
+        TGSTAT_BOT_DB_USER: process.env.TGSTAT_BOT_DB_USER,
+        TGSTAT_BOT_DB_PASSWORD: process.env.TGSTAT_BOT_DB_PASSWORD,
+        TGSTAT_BOT_DB_NAME: process.env.TGSTAT_BOT_DB_NAME,
       },
     },
     {

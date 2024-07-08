@@ -1,31 +1,36 @@
 version: '3.7'
 
-# x-prefect-worker-base: &prefect-worker-template
-#   build: 
-#     context: ../../../godigital-prefect
-#     dockerfile: worker.Dockerfile
-#     args:
-#       TMP_FOLDER: /prefect-tmp/runner_storage
-#   image: godigital-prefect-worker:latest
+x-prefect-worker-base: &prefect-worker-template
+  build: 
+    context: ../../../godigital-tgstats-bot
+    dockerfile: worker.Dockerfile
+    args:
+      TMP_FOLDER: /prefect-tmp/runner_storage
+  image: godigital-prefect-worker:latest
 
-#   environment:
-#     PREFECT_API_URL: http://prefect-server:4200/api
-#     ANALYTICS_APP_DATABASE_URL: '${PREFECT_ANALYTICS_APP_DATABASE_URL}'
-#     TMP_FOLDER: /prefect-tmp/runner_storage
+  environment:
+    PREFECT_API_URL: http://prefect-server:4200/api
+    TMP_FOLDER: /prefect-tmp/runner_storage
+    DB_HOST: '${TGSTAT_BOT_DB_HOST}'
+    DB_PORT: '${TGSTAT_BOT_DB_PORT}'
+    DB_USER: '${TGSTAT_BOT_DB_USER}'
+    DB_PASSWORD: '${TGSTAT_BOT_DB_PASSWORD}'
+    DB_NAME: '${TGSTAT_BOT_DB_NAME}'
 
-#   volumes:  
-#     - ../../../godigital-prefect:/app
-#     - godigital_shared:/prefect-tmp/runner_storage
-#   networks:
-#     - godigital-network
-#   depends_on:
-#     prefect-server:
-#       condition: service_healthy
-#   healthcheck:
-#     test: ["CMD-SHELL", "wget -qO- http://prefect-server:4200/api/ready || exit 1"]
-#     interval: 30s
-#     timeout: 10s
-#     retries: 5
+
+  volumes:  
+    - ../../../godigital-tgstats-bot:/app
+    - godigital_shared:/prefect-tmp/runner_storage
+  networks:
+    - godigital-network
+  depends_on:
+    prefect-server:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://prefect-server:4200/api/ready || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
 
 services:
   hasura:
@@ -123,7 +128,7 @@ services:
   
   prefect-postgres:
     build: 
-      context: ../../../godigital-tgstat-bot
+      context: ../../../godigital-tgstats-bot
       dockerfile: postgres.Dockerfile
     container_name: godigital-prefect-postgres
     environment:
@@ -142,7 +147,7 @@ services:
   prefect-server:
     container_name: godigital-prefect-server
     build: 
-      context: ../../../godigital-tgstat-bot
+      context: ../../../godigital-tgstats-bot
       dockerfile: server.Dockerfile
     entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
     environment:
@@ -159,6 +164,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  prefect-add-bot-session:
+    <<: *prefect-worker-template
+    image: godigital-prefect-worker:latest
+    container_name: godigital-add-bot-session
+    command: ["python3", "main.py", "--flow", "add-bot-session"]
 
   frontend:
     container_name: godigital-frontend

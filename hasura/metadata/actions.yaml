@@ -8,10 +8,10 @@ actions:
           action: transform
           template: |-
             {
-              "phone_number": {{$body.input.arg1.phone_number}},
-              "user_id": {{$session_variables['x-hasura-user-id']}},
-              "code_2fa": {{$body.input.arg1.code_2fa}},
-              "cloud_password": {{$body.input.arg1.cloud_password}}
+              "run_input":{
+                "code_2fa": {{$body.input.arg1.code_2fa}},
+                "cloud_password": {{$body.input.arg1.cloud_password}}
+              }
             }
         method: POST
         query_params: {}
@@ -22,25 +22,30 @@ actions:
         body:
           action: transform
           template: |-
-            {{ if $response.status == 200 }}
+            {{ if $body?.status == "REJECT" }}
+              {
+                "status": "error",
+                "error_text": $body.details.reason
+              }
+            {{ elif $response.status == 201 }}
               {
                 "status": "success",
                 "error_text": null
               }
             {{ else }}
               {
-                "status": "success",
-                "error_text": {{$body.error}}
+                "status": "error",
+                "error_text": {{$body?.detail.msg ?? $body?.details.reason}}
               }
             {{ end }}
         template_engine: Kriti
         version: 2
     permissions:
       - role: user
-  - name: get_tg_auth_flow_id
+  - name: flow_run
     definition:
       kind: ""
-      handler: '{{PREFECT_URL}}/api/flows/name/tg-auth'
+      handler: '{{PREFECT_URL}}/api/flow_runs'
       request_transform:
         method: GET
         query_params: {}
@@ -49,24 +54,32 @@ actions:
           remove_headers:
             - content-type
         template_engine: Kriti
+        url: '{{$base_url}}/{{$body.input.arg1.flow_run_id}}'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "state": {{$body.state_type}}
+            }
+        template_engine: Kriti
         version: 2
     permissions:
       - role: user
-  - name: request_2fa
+  - name: get_tg_auth_deployment_id
     definition:
-      kind: synchronous
-      handler: '{{PREFECT_URL}}/api/flow_runs'
-      forward_client_headers: true
+      kind: ""
+      handler: '{{PREFECT_URL}}/api/deployments/filter'
       request_transform:
         body:
           action: transform
           template: |-
             {
-              "flow_id": {{$body.input.arg1.flow_run_id}},
-              "state": "RUNNING",
-              "parameters": {
-                "user_id": {{$session_variables['x-hasura-user-id']}},
-                "phone_number": {{$body.input.arg1.phone_number}}
+              "flows": {
+                "name": {
+                  "any_": ["flow-add-bot-session"]
+                }
               }
             }
         method: POST
@@ -77,16 +90,46 @@ actions:
         body:
           action: transform
           template: |-
-            {{ if $response.status == 200 }}
+            {
+              "deployment_id": {{$body[0]['id']}}
+            }
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
+  - name: request_2fa
+    definition:
+      kind: synchronous
+      handler: '{{PREFECT_URL}}/api/deployments'
+      forward_client_headers: true
+      request_transform:
+        body:
+          action: transform
+          template: "{\n  \"parameters\": {\n    \"user_id\": {{$session_variables['x-hasura-user-id']}},\n    \"phone_number\": {{$body.input.arg1.phone_number}},\n    \"api_id\": {{$body.input.arg1.api_id}},\n    \"api_hash\": {{$body.input.arg1.api_hash}}\n  },\n  \"state\": {\n      \"type\": \"SCHEDULED\",\n      \"message\": \"\"\n  }  \n}"
+        method: POST
+        query_params: {}
+        template_engine: Kriti
+        url: '{{$base_url}}/{{$body.input.arg1.deployment_id}}/create_flow_run'
+        version: 2
+      response_transform:
+        body:
+          action: transform
+          template: |-
+            {{ if $body?.status == "REJECT" }}
+              {
+                "status": "error",
+                "error_text": $body.details.reason
+              }
+            {{ elif $response.status == 201  }}
               {
                 "status": "success",
-                "flow_run_id": {{$body.flow_run_id}},
+                "flow_run_id":{{$body.id}},
                 "error_text": null
               }
             {{ else }}
               {
                 "status": "error",
-                "error_text": {{$body.error}}
+                "error_text": {{$body?.detail.msg}}
               }
             {{ end }}
         template_engine: Kriti
@@ -98,8 +141,11 @@ custom_types:
   input_objects:
     - name: Request2FAInput
     - name: Confirm2FAInput
+    - name: FlowRunInput
   objects:
     - name: Request2FAOutput
     - name: Confirm2FAOutput
     - name: GetTgAuthFlowIdOutput
+    - name: GetTgAuthDeploymentIdOutput
+    - name: FlowRunOutput
   scalars: []

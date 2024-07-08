@@ -18,16 +18,10 @@ select_permissions:
           _eq: X-Hasura-User-Id
       allow_aggregations: true
     comment: ""
-update_permissions:
+delete_permissions:
   - role: user
     permission:
-      columns:
-        - status
       filter:
         user_id:
           _eq: X-Hasura-User-Id
-      check:
-        status:
-          _in:
-            - deleted
     comment: ""

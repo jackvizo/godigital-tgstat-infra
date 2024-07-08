@@ -1,3 +1,4 @@
+- "!include public_config__tg_bot_session_pool.yaml"
 - "!include public_fn_cohort_analysis.yaml"
 - "!include public_fn_get_avg_user_lifecycle.yaml"
 - "!include public_fn_unsubscribes_by_links.yaml"
