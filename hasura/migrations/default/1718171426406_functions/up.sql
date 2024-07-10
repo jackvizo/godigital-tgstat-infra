@@ -20,7 +20,7 @@ BEGIN
         'month'
       ELSE
         'hour' -- default to 'hour' if an invalid value is provided
-      END, joined_at) AS time_bucket,
+      END, joined_at)::timestamp(6) WITHOUT time zone AS time_bucket,
     COUNT(*) AS signup_count
   FROM
     stat_user
@@ -52,7 +52,7 @@ BEGIN
         'month'
       ELSE
         'hour' -- default to 'hour' if an invalid value is provided
-      END, left_at) AS time_bucket,
+      END, left_at)::timestamp(6) WITHOUT time zone AS time_bucket,
     COUNT(*) AS count
   FROM
     stat_user
