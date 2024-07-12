@@ -1,0 +1,20 @@
+- name: Check if deploy user exists
+  getent:
+    database: passwd
+    key: "{{ deploy_user }}"
+  register: deploy_user_check
+
+- name: Create deploy user
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    password: "{{ deploy_user_password | password_hash('sha512') }}"
+    shell: /bin/bash
+    create_home: yes
+  when: deploy_user_check is not defined
+
+- name: Allow deploy user to have passwordless sudo
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/{{ deploy_user }}
+    content: "{{ deploy_user }} ALL=(ALL) NOPASSWD:ALL"
+    mode: '0440'
+  when: deploy_user_check is not defined

@@ -1,0 +1,74 @@
+- name: Install Certbot
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - certbot
+    - python3-certbot-nginx
+
+- name: Check if frontend certificate exists
+  stat:
+    path: /etc/letsencrypt/live/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
+  register: certbot_frontend_cert_check
+
+- name: Obtain SSL certificates from Let's Encrypt for frontend domain
+  ansible.builtin.command:
+    cmd: >
+      certbot --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      --redirect --expand
+      -d {{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_result_frontend
+  ignore_errors: true
+  when: certbot_frontend_cert_check.stat.exists == false
+
+- name: Check Certbot result for frontend domain
+  ansible.builtin.fail:
+    msg: "Failed to obtain SSL certificates for {{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}"
+  when: certbot_result_frontend.rc != 0 and certbot_frontend_cert_check.stat.exists == false
+
+- name: Check if graphql certificate exists
+  stat:
+    path: /etc/letsencrypt/live/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
+  register: certbot_graphql_cert_check
+
+- name: Obtain SSL certificates from Let's Encrypt for graphql domain
+  ansible.builtin.command:
+    cmd: >
+      certbot --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      --redirect --expand
+      -d {{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_result_graphql
+  ignore_errors: true
+  when: certbot_graphql_cert_check.stat.exists == false
+
+- name: Check Certbot result for graphql domain
+  ansible.builtin.fail:
+    msg: "Failed to obtain SSL certificates for {{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}"
+  when: certbot_result_graphql.rc != 0 and certbot_graphql_cert_check.stat.exists == false
+
+- name: Check if sso certificate exists
+  stat:
+    path: /etc/letsencrypt/live/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
+  register: certbot_sso_cert_check
+
+- name: Obtain SSL certificates from Let's Encrypt for sso domain
+  ansible.builtin.command:
+    cmd: >
+      certbot --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      --redirect --expand
+      -d {{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_result_sso
+  ignore_errors: true
+  when: certbot_sso_cert_check.stat.exists == false
+
+- name: Check Certbot result for sso domain
+  ansible.builtin.fail:
+    msg: "Failed to obtain SSL certificates for {{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}"
+  when: certbot_result_sso.rc != 0 and certbot_sso_cert_check.stat.exists == false
+
+- name: Ensure Nginx is reloaded after Certbot run
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+  when: certbot_result_frontend.rc == 0 or certbot_result_graphql.rc == 0 or certbot_result_sso.rc == 0

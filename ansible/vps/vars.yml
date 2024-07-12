@@ -1,0 +1,27 @@
+# WireGuard Configuration
+wireguard_client_private_key_path: "/etc/wireguard/wireguard_client_private_key"
+wireguard_client_public_key_path: "/etc/wireguard/wireguard_client_public_key"
+wireguard_client_config_path: "/etc/wireguard/wg0-client.conf"
+wireguard_client_ip: "10.0.0.2"
+wireguard_dns: "8.8.8.8"
+wireguard_server_public_key: "server_public_key"
+wireguard_server_endpoint: "server_endpoint:51820"
+
+# User Configuration
+deploy_user: "deployuser"
+deploy_user_password: "deployuser_secure_password"
+deploy_user_ssh_public_key: "deployuser_ssh_public_key"
+
+# Ports Configuration
+frontend_port: 3001
+graphql_port: 3002
+sso_port: 3003
+
+# Email for Let's Encrypt
+letsencrypt_email: "your_email@example.com"  # Email для регистрации Let's Encrypt
+
+# Domain Configuration
+project_domain: "godigital.team"
+frontend_subdomain: "tgstat"
+graphql_subdomain: "graphql"
+sso_subdomain: "sso"

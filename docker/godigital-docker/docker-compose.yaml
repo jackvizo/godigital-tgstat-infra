@@ -171,6 +171,12 @@ services:
     container_name: godigital-add-bot-session
     command: ["python3", "main.py", "--flow", "add-bot-session"]
 
+  prefect-tg-collect:
+    <<: *prefect-worker-template
+    image: godigital-prefect-worker:latest
+    container_name: godigital-tg-collect
+    command: ["python3", "main.py", "--flow", "tg-collect-by-all-users"]
+
   frontend:
     container_name: godigital-frontend
     build: 

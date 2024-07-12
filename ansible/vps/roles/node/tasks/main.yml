@@ -1,0 +1,13 @@
+- name: Download Node.js setup script
+  ansible.builtin.get_url:
+    url: https://deb.nodesource.com/setup_22.x
+    dest: /tmp/nodesource_setup.sh
+
+- name: Run Node.js setup script
+  ansible.builtin.command: bash /tmp/nodesource_setup.sh
+
+- name: Install Node.js
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: true
