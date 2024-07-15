@@ -17,7 +17,6 @@ x-prefect-worker-base: &prefect-worker-template
     DB_PASSWORD: '${TGSTAT_BOT_DB_PASSWORD}'
     DB_NAME: '${TGSTAT_BOT_DB_NAME}'
 
-
   volumes:  
     - ../../../godigital-tgstats-bot:/app
     - godigital_shared:/prefect-tmp/runner_storage

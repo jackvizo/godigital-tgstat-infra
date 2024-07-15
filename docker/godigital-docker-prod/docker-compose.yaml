@@ -2,7 +2,7 @@ version: '3.7'
 
 x-prefect-worker-base: &prefect-worker-template
   build: 
-    context: ../../../godigital-prefect
+    context: ../../../godigital-tgstats-bot
     dockerfile: worker.Dockerfile
     args:
       TMP_FOLDER: /prefect-tmp/runner_storage
@@ -11,11 +11,15 @@ x-prefect-worker-base: &prefect-worker-template
 
   environment:
     PREFECT_API_URL: http://prefect-server:4200/api
-    ANALYTICS_APP_DATABASE_URL: '${PREFECT_ANALYTICS_APP_DATABASE_URL}'
     TMP_FOLDER: /prefect-tmp/runner_storage
+    DB_HOST: '${TGSTAT_BOT_DB_HOST}'
+    DB_PORT: '${TGSTAT_BOT_DB_PORT}'
+    DB_USER: '${TGSTAT_BOT_DB_USER}'
+    DB_PASSWORD: '${TGSTAT_BOT_DB_PASSWORD}'
+    DB_NAME: '${TGSTAT_BOT_DB_NAME}'
 
   volumes:
-    - ../../../godigital-prefect:/app
+    - ../../../godigital-tgstats-bot:/app
     - godigital_shared:/prefect-tmp/runner_storage
   networks:
     - godigital-network
@@ -38,11 +42,11 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: '${HASURA_GRAPHQL_DATABASE_URL}'
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_DEV_MODE: "false"
-      HASURA_GRAPHQL_INFER_FUNCTION_PERMISSIONS: "false"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_JWT_SECRETS: '${HASURA_GRAPHQL_JWT_SECRETS}'
       HASURA_GRAPHQL_ADMIN_SECRET: '${HASURA_GRAPHQL_ADMIN_SECRET}'
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      HASURA_GRAPHQL_INFER_FUNCTION_PERMISSIONS: "false"
       HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
       HASURA_GRAPHQL_CORS_DOMAIN: '${HASURA_GRAPHQL_CORS_DOMAIN}'
       ACTIONS_BASE_URL: '${HASURA_ACTIONS_BASE_URL}'
@@ -106,7 +110,7 @@ services:
 
   prefect-postgres:
     build: 
-      context: ../../../godigital-prefect
+      context: ../../../godigital-tgstats-bot
       dockerfile: postgres.Dockerfile
     container_name: godigital-prefect-postgres
     environment:
@@ -125,7 +129,7 @@ services:
   prefect-server:
     container_name: godigital-prefect-server
     build: 
-      context: ../../../godigital-prefect
+      context: ../../../godigital-tgstats-bot
       dockerfile: server.Dockerfile
     entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
     environment:
@@ -142,6 +146,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  prefect-add-bot-session:
+    <<: *prefect-worker-template
+    image: godigital-prefect-worker:latest
+    container_name: godigital-add-bot-session
+    command: ["python3", "main.py", "--flow", "add-bot-session"]
+
+  prefect-tg-collect:
+    <<: *prefect-worker-template
+    image: godigital-prefect-worker:latest
+    container_name: godigital-tg-collect
+    command: ["python3", "main.py", "--flow", "tg-collect-by-all-users"]
 
   frontend:
     container_name: godigital-frontend
@@ -191,6 +207,7 @@ services:
 volumes:
   godigital_shared:
   godigital_prefect_pg:
+    driver: local
 
 networks:
   godigital-network:

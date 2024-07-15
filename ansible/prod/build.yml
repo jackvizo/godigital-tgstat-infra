@@ -1,0 +1,17 @@
+---
+- hosts: webservers
+  gather_facts: no
+  vars_files:
+    - vars.yml
+  remote_user: "{{ remote_user }}"
+  become: true
+  tasks:
+    - name: Clean up Docker
+      shell: "sudo docker builder prune -f && sudo docker image prune -f"
+      args:
+        chdir: "{{ base_dir }}/{{ project_name }}-infra/docker/{{ project_name }}-docker-prod"
+    
+    - name: Build Docker images
+      shell: "sudo docker-compose build"
+      args:
+        chdir: "{{ base_dir }}/{{ project_name }}-infra/docker/{{ project_name }}-docker-prod"

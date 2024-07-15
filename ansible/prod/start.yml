@@ -1,0 +1,11 @@
+---
+- hosts: webservers
+  gather_facts: no
+  vars_files:
+    - vars.yml
+  remote_user: "{{ remote_user }}"
+  tasks:
+    - name: Start Docker containers
+      shell: "sudo docker-compose up -d"
+      args:
+        chdir: "{{ base_dir }}/{{ project_name }}-infra/docker/{{ project_name }}-docker-prod"

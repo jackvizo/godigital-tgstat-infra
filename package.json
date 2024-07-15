@@ -15,15 +15,13 @@
     "hasura:export": "cd hasura && hasura metadata export --envfile .env && cd ../",
     "hasura:seed": "cd hasura && hasura seed apply --all-databases --envfile .env && cd ../",
     "hasura:migrate": "cd hasura && hasura migrate apply --all-databases --envfile .env && cd ../",
-    "deploy:production:git": "ansible-playbook -i ansible/prod/hosts ansible/prod/git.yaml",
-    "deploy:production:env": "ansible-playbook -i ansible/prod/hosts ansible/prod/env.yaml",
-    "deploy:production:build": "ansible-playbook -i ansible/prod/hosts ansible/prod/build.yaml",
-    "deploy:production:migrate": "ansible-playbook -i ansible/prod/hosts ansible/prod/migrate.yaml",
-    "deploy:production:start": "ansible-playbook -i ansible/prod/hosts ansible/prod/start.yaml",
+    "deploy:production:git": "ansible-playbook -i ansible/prod/hosts ansible/prod/git.yml",
+    "deploy:production:env": "ansible-playbook -i ansible/prod/hosts ansible/prod/env.yml",
+    "deploy:production:build": "ansible-playbook -i ansible/prod/hosts ansible/prod/build.yml",
+    "deploy:production:migrate": "ansible-playbook -i ansible/prod/hosts ansible/prod/migrate.yml",
+    "deploy:production:start": "ansible-playbook -i ansible/prod/hosts ansible/prod/start.yml",
     "deploy:production": "yarn deploy:production:git && yarn deploy:production:env && yarn deploy:production:build && yarn deploy:production:start",
-    "deploy:production:front": "yarn deploy:production:git && yarn deploy:production:env && ansible-playbook -i ansible/prod/hosts ansible/prod/build-frontend-only.yaml && yarn deploy:production:start",
-    "deploy:immerse:git": "ansible-playbook -i ansible/immerse/hosts ansible/immerse/git.yaml",
-    "deploy:immerse:build": "ansible-playbook -i ansible/immerse/hosts ansible/immerse/build.yaml"
+    "deploy:production:front": "yarn deploy:production:git && yarn deploy:production:env && ansible-playbook -i ansible/prod/hosts ansible/prod/build-frontend-only.yaml && yarn deploy:production:start"
   },
   "devDependencies": {
     "@prisma/client": "^5.2.0",

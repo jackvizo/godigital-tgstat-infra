@@ -1,0 +1,20 @@
+# vars.yml
+
+# Пользователь для подключения
+remote_user: deployuser
+
+# Имя проекта
+project_name: godigital
+
+# Репозитории Git
+repositories:
+  - name: "{{ project_name }}-frontend"
+    url: git@github.com:Gaever/gaever-godigital-frontend.git
+  - name: "{{ project_name }}-infra"
+    url: git@github.com:Gaever/gaever-godigital-infra.git
+  - name: "{{ project_name }}-tgstats-bot"
+    url: git@github.com:jackvizo/tgstats_bot.git
+
+# Пути к каталогам
+base_dir: "/home/{{ remote_user }}"
+env_file: "{{ playbook_dir }}/../../.env.production"
