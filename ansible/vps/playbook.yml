@@ -3,9 +3,9 @@
   vars_files:
     - vars.yml
   tasks:
-    - name: Create non-root user
-      include_role:
-        name: common
+    # - name: Create non-root user
+    #   include_role:
+    #     name: common
 
 - hosts: webservers
   become: true
@@ -13,17 +13,13 @@
   vars_files:
     - vars.yml
   tasks:
-    - name: Setup SSH for non-root user
-      include_role:
-        name: ssh
+    # - name: Setup SSH for non-root user
+    #   include_role:
+    #     name: ssh
 
-    - name: Install and configure Nginx
-      include_role:
-        name: nginx
-
-    - name: Install Certbot and obtain SSL certificates
-      include_role:
-        name: certbot
+    # - name: Ensure apt locks are cleared
+    #   include_role:
+    #     name: apt-lock
 
     - name: Install WireGuard and configure client
       include_role:
@@ -40,3 +36,15 @@
     - name: Install Yarn
       include_role:
         name: yarn
+
+    # - name: Install and configure Nginx without SSL
+    #   include_role:
+    #     name: nginx_no_ssl
+
+    # - name: Install Certbot and obtain SSL certificates
+    #   include_role:
+    #     name: certbot
+
+    # - name: Install and configure Nginx with SSL
+    #   include_role:
+    #     name: nginx_with_ssl

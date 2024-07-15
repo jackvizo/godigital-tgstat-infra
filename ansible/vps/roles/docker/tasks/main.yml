@@ -1,3 +1,9 @@
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+  become: true
+  become_user: root
+
 - name: Install Docker dependencies
   ansible.builtin.apt:
     name: "{{ item }}"
@@ -8,22 +14,34 @@
     - ca-certificates
     - curl
     - software-properties-common
+  when: "'docker-ce' not in ansible_facts.packages"
+  become: true
+  become_user: root
 
 - name: Add Docker GPG key
   ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
+  when: "'docker-ce' not in ansible_facts.packages"
+  become: true
+  become_user: root
 
 - name: Add Docker repository
   ansible.builtin.apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     state: present
+  when: "'docker-ce' not in ansible_facts.packages"
+  become: true
+  become_user: root
 
-- name: Update apt and install Docker CE
+- name: Install Docker CE
   ansible.builtin.apt:
     name: docker-ce
     state: present
-    update_cache: true
+    update_cache: yes
+  when: "'docker-ce' not in ansible_facts.packages"
+  become: true
+  become_user: root
 
 - name: Check if deploy user is in docker group
   command: id -nG {{ deploy_user }}
@@ -35,3 +53,5 @@
     groups: docker
     append: yes
   when: "'docker' not in docker_group_check.stdout"
+  become: true
+  become_user: root

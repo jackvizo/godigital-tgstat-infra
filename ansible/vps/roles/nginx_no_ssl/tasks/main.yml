@@ -1,0 +1,74 @@
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  when: "'nginx' not in ansible_facts.packages"
+  become: true
+  become_user: root
+
+- name: Check if Nginx configuration file for frontend exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_frontend
+
+- name: Create temporary Nginx configuration for frontend without SSL
+  ansible.builtin.template:
+    src: templates/nginx_no_ssl.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_frontend.stat.exists == false
+  notify: reload nginx
+  become: true
+  become_user: root
+
+- name: Check if Nginx configuration file for graphql exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_graphql
+
+- name: Create temporary Nginx configuration for graphql without SSL
+  ansible.builtin.template:
+    src: templates/nginx_no_ssl.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_graphql.stat.exists == false
+  notify: reload nginx
+  become: true
+  become_user: root
+
+- name: Check if Nginx configuration file for sso exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_sso
+
+- name: Create temporary Nginx configuration for sso without SSL
+  ansible.builtin.template:
+    src: templates/nginx_no_ssl.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_sso.stat.exists == false
+  notify: reload nginx
+  become: true
+  become_user: root
+
+- name: Ensure Nginx is running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+  become: true
+  become_user: root
+
+- name: Test Nginx configuration
+  ansible.builtin.command:
+    cmd: nginx -t
+  register: nginx_test_result
+  ignore_errors: true
+  become: true
+  become_user: root
+
+- name: Fail if Nginx configuration is invalid
+  ansible.builtin.fail:
+    msg: "Nginx configuration is invalid"
+  when: nginx_test_result.rc != 0

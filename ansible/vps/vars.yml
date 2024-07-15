@@ -2,23 +2,23 @@
 wireguard_client_private_key_path: "/etc/wireguard/wireguard_client_private_key"
 wireguard_client_public_key_path: "/etc/wireguard/wireguard_client_public_key"
 wireguard_client_config_path: "/etc/wireguard/wg0-client.conf"
-wireguard_client_ip: "10.0.0.2"
-wireguard_dns: "8.8.8.8"
-wireguard_server_public_key: "server_public_key"
-wireguard_server_endpoint: "server_endpoint:51820"
+wireguard_client_ip: "10.0.0.12"
+wireguard_dns: "127.0.0.1"
+wireguard_server_public_key: "cdQN3Qdhd2fJbjrr98QPOOG5nrXPKzlwf6xkXWuEwWo="
+wireguard_server_endpoint: "178.208.75.8:51820"
 
 # User Configuration
 deploy_user: "deployuser"
-deploy_user_password: "deployuser_secure_password"
-deploy_user_ssh_public_key: "deployuser_ssh_public_key"
+deploy_user_password: "s2_7salc<mcsVU13"
+deploy_user_ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCofCrojdolSWpR0L/LHJr2u+Pamf/0KQLjg5HtLwo9N/u8t5iExL/y9kfgu1gpVAKAv7ZWkD1LBC6YXQ6bpY/TTnp7OBg2O4nXr6/I9tK1uJtpFsFcj3pYFUteKcxZr+MHuFOmysjg7HRbufrSOh74Dp1R8rOU04TD3oyj/xBuDbnS5Tz/dk1048USD39y7CL97VZHQr46/Ipzc20mNDG9P8stEyxFhuT0SaFOUpYn3AFMEQDIxHhGdNWzi4Kagpw6HRu8ejcSZRdI5al69DzOOFj7SuItddvoivnCcO42V/geMtD68btvVmwydG7S6KT/jvtkIv6q27rN5R9x/lGR gaever@MacBook-Pro.local"
 
 # Ports Configuration
-frontend_port: 3001
-graphql_port: 3002
-sso_port: 3003
+frontend_port: 3000
+graphql_port: 8080
+sso_port: 9080
 
 # Email for Let's Encrypt
-letsencrypt_email: "your_email@example.com"  # Email для регистрации Let's Encrypt
+letsencrypt_email: "main@godigital.team"  # Email для регистрации Let's Encrypt
 
 # Domain Configuration
 project_domain: "godigital.team"

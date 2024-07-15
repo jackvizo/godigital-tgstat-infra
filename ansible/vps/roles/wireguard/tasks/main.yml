@@ -1,46 +1,92 @@
-- name: Install WireGuard
-  ansible.builtin.apt:
-    name: wireguard
-    state: present
-    update_cache: true
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+  become: true
+  become_user: root
 
-- name: Create WireGuard configuration directory
+- name: Install WireGuard and dependencies
+  ansible.builtin.apt:
+    name:
+      - wireguard
+      - resolvconf
+    state: present
+    update_cache: yes
+  when: "'wireguard' not in ansible_facts.packages or 'resolvconf' not in ansible_facts.packages"
+  become: true
+  become_user: root
+
+- name: Ensure /etc/wireguard directory exists
   ansible.builtin.file:
     path: /etc/wireguard
     state: directory
-    owner: root
-    group: root
     mode: '0700'
+  become: true
+  become_user: root
 
 - name: Check if client private key exists
-  stat:
-    path: "{{ wireguard_client_private_key_path }}"
-  register: wireguard_client_private_key_stat
+  ansible.builtin.stat:
+    path: /etc/wireguard/wireguard_client_private_key
+  register: client_private_key_check
+  become: true
+  become_user: root
+
+- name: Read existing client private key
+  ansible.builtin.command:
+    cmd: "cat /etc/wireguard/wireguard_client_private_key"
+  register: existing_client_private_key
+  when: client_private_key_check.stat.exists
+  become: true
+  become_user: root
 
 - name: Generate client private key
-  command: wg genkey | tee {{ wireguard_client_private_key_path }}
-  when: not wireguard_client_private_key_stat.stat.exists
+  ansible.builtin.command:
+    cmd: "wg genkey"
+  register: client_private_key
+  when: not client_private_key_check.stat.exists
+  become: true
+  become_user: root
 
-- name: Read client private key
-  command: cat {{ wireguard_client_private_key_path }}
-  register: wireguard_client_private_key_content
-  when: wireguard_client_private_key_stat.stat.exists or not wireguard_client_private_key_stat.stat.exists
+- name: Save client private key
+  ansible.builtin.copy:
+    content: "{{ client_private_key.stdout }}"
+    dest: /etc/wireguard/wireguard_client_private_key
+    mode: '0600'
+  when: not client_private_key_check.stat.exists
+  become: true
+  become_user: root
 
 - name: Generate client public key
-  command: echo {{ wireguard_client_private_key_content.stdout }} | wg pubkey | tee {{ wireguard_client_public_key_path }}
-  when: not wireguard_client_private_key_stat.stat.exists
+  ansible.builtin.command:
+    cmd: "echo {{ client_private_key.stdout }} | wg pubkey"
+  register: client_public_key
+  when: not client_private_key_check.stat.exists
+  become: true
+  become_user: root
 
-- name: Read client public key
-  command: cat {{ wireguard_client_public_key_path }}
-  register: wireguard_client_public_key_content
+- name: Save client public key
+  ansible.builtin.copy:
+    content: "{{ client_public_key.stdout }}"
+    dest: /etc/wireguard/wireguard_client_public_key
+    mode: '0644'
+  when: not client_private_key_check.stat.exists
+  become: true
+  become_user: root
 
-- name: Create WireGuard client configuration
+- name: Set wireguard_client_private_key_content
+  set_fact:
+    wireguard_client_private_key_content: "{{ client_private_key_check.stat.exists | ternary(existing_client_private_key.stdout, client_private_key.stdout) }}"
+  become: true
+  become_user: root
+
+- name: Ensure WireGuard configuration file exists
   ansible.builtin.template:
-    src: wg0-client.conf.j2
-    dest: "{{ wireguard_client_config_path }}"
-    owner: root
-    group: root
+    src: templates/wg0-client.conf.j2
+    dest: /etc/wireguard/wg0.conf
     mode: '0600'
+  become: true
+  become_user: root
 
-- name: Start WireGuard client
-  command: wg-quick up {{ wireguard_client_config_path }}
+- name: Bring up WireGuard interface
+  ansible.builtin.command: wg-quick up wg0
+  become: true
+  become_user: root

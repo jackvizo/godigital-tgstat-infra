@@ -1,0 +1,47 @@
+- name: Ensure no other apt processes are running
+  ansible.builtin.shell: |
+    while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
+      echo "Waiting for other apt processes to finish..."
+      sleep 5
+    done
+  become: true
+  become_user: root
+
+- name: Kill all blocking apt processes
+  ansible.builtin.shell: |
+    ps aux | grep -i apt | awk '{print $2}' | xargs kill -9
+  become: true
+  become_user: root
+  ignore_errors: true
+
+- name: Remove apt lists lock
+  ansible.builtin.file:
+    path: /var/lib/apt/lists/lock
+    state: absent
+  become: true
+  become_user: root
+
+- name: Remove apt archives lock
+  ansible.builtin.file:
+    path: /var/cache/apt/archives/lock
+    state: absent
+  become: true
+  become_user: root
+
+- name: Remove dpkg lock
+  ansible.builtin.file:
+    path: /var/lib/dpkg/lock
+    state: absent
+  become: true
+  become_user: root
+
+- name: Reconfigure dpkg
+  ansible.builtin.command: dpkg --configure -a
+  become: true
+  become_user: root
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+  become_user: root
