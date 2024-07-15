@@ -1,13 +1,35 @@
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+  become: true
+  become_user: root
+
+- name: Check if Node.js is installed
+  ansible.builtin.command: node -v
+  register: node_installed
+  ignore_errors: true
+  become: true
+  become_user: root
+
 - name: Download Node.js setup script
   ansible.builtin.get_url:
     url: https://deb.nodesource.com/setup_22.x
     dest: /tmp/nodesource_setup.sh
+  when: node_installed.rc != 0
+  become: true
+  become_user: root
 
 - name: Run Node.js setup script
   ansible.builtin.command: bash /tmp/nodesource_setup.sh
+  when: node_installed.rc != 0
+  become: true
+  become_user: root
 
 - name: Install Node.js
   ansible.builtin.apt:
     name: nodejs
     state: present
     update_cache: true
+  when: node_installed.rc != 0 or "'nodejs' not in ansible_facts.packages"
+  become: true
+  become_user: root

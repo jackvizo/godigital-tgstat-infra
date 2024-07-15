@@ -23,11 +23,24 @@
   become: true
   become_user: root
 
-- name: Ensure WireGuard configuration file exists
+- name: Ensure WireGuard configuration file exists and replace if necessary
   ansible.builtin.template:
     src: templates/wg0-client.conf.j2
     dest: /etc/wireguard/wg0.conf
     mode: '0600'
+  become: true
+  become_user: root
+
+- name: Check if WireGuard interface is up
+  ansible.builtin.command: ip link show wg0
+  register: wg0_interface_check
+  ignore_errors: true
+  become: true
+  become_user: root
+
+- name: Bring down WireGuard interface if it exists
+  ansible.builtin.command: wg-quick down wg0
+  when: wg0_interface_check.rc == 0
   become: true
   become_user: root
 
