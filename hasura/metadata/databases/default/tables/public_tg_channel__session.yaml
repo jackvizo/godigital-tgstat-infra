@@ -1,0 +1,21 @@
+table:
+  name: tg_channel__session
+  schema: public
+object_relationships:
+  - name: config__tg_bot_session_pool
+    using:
+      foreign_key_constraint_on: config__tg_bot_session_pool_pk
+  - name: user_tg_channel
+    using:
+      foreign_key_constraint_on: user_tg_channel_pk
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - config__tg_bot_session_pool_pk
+        - user_tg_channel_pk
+      filter:
+        user_tg_channel:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""

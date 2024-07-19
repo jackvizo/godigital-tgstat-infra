@@ -1,5 +1,5 @@
 table:
-  name: stat_user
+  name: stat_post_info
   schema: public
 object_relationships:
   - name: user_tg_channel
@@ -17,18 +17,23 @@ select_permissions:
       columns:
         - pk
         - tg_channel_id
-        - tg_user_id
-        - is_joined_by_link
-        - premium
-        - scam
-        - verified
-        - first_name
-        - invite_link
-        - last_name
-        - phone
-        - username
-        - joined_at
-        - left_at
+        - tg_post_id
+        - comments_channels_count
+        - comments_messages_count
+        - comments_messages_count_1h
+        - comments_messages_count_24h
+        - comments_users_count
+        - forwards
+        - reaction_24h
+        - reactions_1h
+        - total_reactions_count
+        - view_24h
+        - views
+        - views_1h
+        - link
+        - media
+        - message
+        - date_of_post
         - timestamp
       filter:
         user_tg_channel:

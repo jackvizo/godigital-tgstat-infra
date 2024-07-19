@@ -2,30 +2,34 @@ table:
   name: config__tg_bot_session_pool
   schema: public
 object_relationships:
-  - name: user_phone_number
+  - name: user
     using:
-      manual_configuration:
-        column_mapping:
-          phone_number: phone_number
-        insertion_order: null
-        remote_table:
-          name: user_phone_number
+      foreign_key_constraint_on: user_id
+array_relationships:
+  - name: tg_channel__sessions
+    using:
+      foreign_key_constraint_on:
+        column: config__tg_bot_session_pool_pk
+        table:
+          name: tg_channel__session
           schema: public
 select_permissions:
   - role: user
     permission:
       columns:
+        - created_at
         - phone_number
+        - pk
+        - status
+        - user_id
       filter:
-        user_phone_number:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        user_phone_number:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

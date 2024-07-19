@@ -1,6 +1,16 @@
 table:
   name: stat_post
   schema: public
+object_relationships:
+  - name: user_tg_channel
+    using:
+      manual_configuration:
+        column_mapping:
+          tg_channel_id: tg_channel_id
+        insertion_order: null
+        remote_table:
+          name: user_tg_channel
+          schema: public
 select_permissions:
   - role: user
     permission:
@@ -20,10 +30,11 @@ select_permissions:
         - view_24h
         - views
         - views_1h
-        - link
-        - media
-        - message
+        - date_of_post
         - timestamp
-      filter: {}
+      filter:
+        user_tg_channel:
+          user_id:
+            _eq: X-Hasura-User-Id
       allow_aggregations: true
     comment: ""

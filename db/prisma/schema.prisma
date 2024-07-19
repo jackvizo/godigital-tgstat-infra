@@ -123,6 +123,19 @@ model stat_post_info {
   link          String?
   media         String?
 
+  views                       Int?
+  views_1h                    Int?
+  view_24h                    Int?
+  total_reactions_count       Int?
+  reactions_1h                Int?
+  reaction_24h                Int?
+  comments_messages_count     Int?
+  comments_users_count        Int?
+  comments_channels_count     Int?
+  comments_messages_count_1h  Int?
+  comments_messages_count_24h Int?
+  forwards                    Int?
+
   @@unique([tg_channel_id, tg_post_id])
 }
 

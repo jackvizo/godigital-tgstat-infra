@@ -136,16 +136,62 @@ actions:
         version: 2
     permissions:
       - role: user
+  - name: tg_channels
+    definition:
+      kind: ""
+      handler: '{{ACTIONS_BASE_URL}}/tg-channels'
+      headers:
+        - name: x-godigital
+          value_from_env: NEXTJS_BACKEND_TOKEN
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "user_id": {{ $session_variables['x-hasura-user-id'] }},
+              "title_search": {{ $body.input.arg1.title_search }}
+            }
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
+  - name: track_tg_channel
+    definition:
+      kind: synchronous
+      handler: '{{ACTIONS_BASE_URL}}/tg-channels/track'
+      forward_client_headers: true
+      headers:
+        - name: x-godigital
+          value_from_env: NEXTJS_BACKEND_TOKEN
+      request_transform:
+        body:
+          action: transform
+          template: |-
+            {
+              "user_id": {{$session_variables['x-hasura-user-id']}},
+              "phone_numbers": {{$body.input.arg1.phone_numbers}},
+              "tg_channel_id": {{$body.input.arg1.tg_channel_id}},
+              "tg_channel_title": {{$body.input.arg1.tg_channel_title}}
+            }
+        template_engine: Kriti
+        version: 2
+    permissions:
+      - role: user
 custom_types:
   enums: []
   input_objects:
     - name: Request2FAInput
     - name: Confirm2FAInput
     - name: FlowRunInput
+    - name: TgChannelsInput
+    - name: track_tg_channel_input
   objects:
     - name: Request2FAOutput
     - name: Confirm2FAOutput
     - name: GetTgAuthFlowIdOutput
     - name: GetTgAuthDeploymentIdOutput
     - name: FlowRunOutput
+    - name: TgChannel
+    - name: TgChannelsOutput
+    - name: track_tg_channel_output
   scalars: []

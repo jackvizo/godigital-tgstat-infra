@@ -5,14 +5,30 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_id
+array_relationships:
+  - name: tg_channel__sessions
+    using:
+      foreign_key_constraint_on:
+        column: user_tg_channel_pk
+        table:
+          name: tg_channel__session
+          schema: public
 select_permissions:
   - role: user
     permission:
       columns:
+        - pk
         - tg_channel_id
+        - tg_channel_title
         - user_id
       filter:
         user_id:
           _eq: X-Hasura-User-Id
-      allow_aggregations: true
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

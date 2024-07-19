@@ -20,6 +20,18 @@ type Mutation {
   ): Request2FAOutput
 }
 
+type Query {
+  tg_channels(
+    arg1: TgChannelsInput!
+  ): TgChannelsOutput
+}
+
+type Mutation {
+  track_tg_channel(
+    arg1: track_tg_channel_input!
+  ): track_tg_channel_output
+}
+
 input Request2FAInput {
   phone_number: String!
   api_id: String!
@@ -35,6 +47,16 @@ input Confirm2FAInput {
 
 input FlowRunInput {
   flow_run_id: String!
+}
+
+input TgChannelsInput {
+  title_search: String!
+}
+
+input track_tg_channel_input {
+  tg_channel_id: String!
+  tg_channel_title: String!
+  phone_numbers: [String!]!
 }
 
 type Request2FAOutput {
@@ -58,5 +80,19 @@ type GetTgAuthDeploymentIdOutput {
 
 type FlowRunOutput {
   state: String!
+}
+
+type TgChannel {
+  channel_id: String!
+  title: String!
+  phone_numbers: [String!]!
+}
+
+type TgChannelsOutput {
+  channels: [TgChannel!]!
+}
+
+type track_tg_channel_output {
+  success: Boolean!
 }
 

@@ -2,19 +2,19 @@ table:
   name: user
   schema: public
 array_relationships:
+  - name: config__tg_bot_session_pools
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: config__tg_bot_session_pool
+          schema: public
   - name: tg_invite_link_groups
     using:
       foreign_key_constraint_on:
         column: user_id
         table:
           name: tg_invite_link_group
-          schema: public
-  - name: user_phone_numbers
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: user_phone_number
           schema: public
   - name: user_tg_channels
     using:

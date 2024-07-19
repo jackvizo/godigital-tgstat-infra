@@ -98,17 +98,16 @@ BEGIN
       invite_link
 )
   SELECT
-    s.link,
+    f.invite_link,
     COALESCE(f.joined_count, 0) AS joined_count,
     COALESCE(f.left_count, 0) AS left_count
   FROM
-    stat_post s
-  LEFT JOIN filtered_users f ON s.link = f.invite_link
+    filtered_users f
 WHERE
   tg_channel_id = ANY(tg_channel_ids)
-    AND s.link = ANY(link_array)
+    AND f.invite_link = ANY(link_array)
   GROUP BY
-    s.link,
+    f.invite_link,
     f.joined_count,
     f.left_count;
 END;
