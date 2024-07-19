@@ -43,6 +43,52 @@
   become: true
   become_user: root
 
+- name: Ensure Docker is started and enabled
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+  become: true
+  become_user: root
+
+- name: Check current Docker networks
+  ansible.builtin.command: docker network ls --format "{{ '{{.Name}}' }}"
+  register: docker_networks
+  become: true
+  become_user: root
+
+- name: Check if Docker configuration file exists
+  ansible.builtin.stat:
+    path: /etc/docker/daemon.json
+  register: docker_daemon_config
+  become: true
+  become_user: root
+
+- name: Load current Docker configuration
+  ansible.builtin.slurp:
+    src: /etc/docker/daemon.json
+  register: current_docker_config
+  when: docker_daemon_config.stat.exists
+  become: true
+  become_user: root
+
+- name: Check if Docker configuration needs updating
+  set_fact:
+    docker_config_needs_update: "{{ current_docker_config.content | b64decode | from_json != lookup('file', 'templates/docker-daemon.json.j2') | from_json }}"
+  when: docker_daemon_config.stat.exists
+  become: true
+  become_user: root
+
+# Решает проблемы с VPN
+- name: Configure Docker to use custom bridge network with static IP
+  ansible.builtin.template:
+    src: templates/docker-daemon.json.j2
+    dest: /etc/docker/daemon.json
+  notify: restart docker
+  when: not docker_daemon_config.stat.exists or docker_config_needs_update
+  become: true
+  become_user: root
+
 - name: Check if deploy user is in docker group
   command: id -nG {{ deploy_user }}
   register: docker_group_check
@@ -55,3 +101,11 @@
   when: "'docker' not in docker_group_check.stdout"
   become: true
   become_user: root
+
+- name: Restart Docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+  become: true
+  become_user: root
+  when: "'docker-ce' in ansible_facts.packages"

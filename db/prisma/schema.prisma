@@ -22,6 +22,7 @@ model user_tg_channel {
 
   user_id             String                @db.Uuid
   tg_channel_id       BigInt
+  tg_channel_title    String
   user                user                  @relation(fields: [user_id], references: [id])
   tg_channel__session tg_channel__session[]
 }
@@ -93,35 +94,38 @@ model stat_user {
 }
 
 model stat_post {
-  pk                          BigInt   @id @default(autoincrement())
-  timestamp                   DateTime @default(now())
-  tg_post_id                  BigInt   @unique
+  pk                          BigInt    @id @default(autoincrement())
+  timestamp                   DateTime  @default(now())
+  date_of_post                DateTime?
+  tg_post_id                  BigInt
   tg_channel_id               BigInt
-  message                     String
-  views                       Int
-  views_1h                    Int
-  view_24h                    Int
-  total_reactions_count       Int
-  reactions_1h                Int
-  reaction_24h                Int
-  comments_messages_count     Int
-  comments_users_count        Int
-  comments_channels_count     Int
-  comments_messages_count_1h  Int
-  comments_messages_count_24h Int
-  link                        String
-  media                       String
-  forwards                    Int
+  message                     String?
+  views                       Int?
+  views_1h                    Int?
+  view_24h                    Int?
+  total_reactions_count       Int?
+  reactions_1h                Int?
+  reaction_24h                Int?
+  comments_messages_count     Int?
+  comments_users_count        Int?
+  comments_channels_count     Int?
+  comments_messages_count_1h  Int?
+  comments_messages_count_24h Int?
+  link                        String?
+  media                       String?
+  forwards                    Int?
 }
 
 model stat_reaction {
   pk                     BigInt   @id @default(autoincrement())
   timestamp              DateTime @default(now())
-  tg_post_id             BigInt   @unique
+  tg_post_id             BigInt
   tg_channel_id          BigInt
-  reaction_count         Int
-  reaction_emoticon      String
-  reaction_emoticon_code Int
+  reaction_count         Int?
+  reaction_emoticon      String?
+  reaction_emoticon_code Int?
+
+  @@unique([tg_channel_id, tg_post_id, reaction_emoticon_code])
 }
 
 model fn_cohort_analysis {

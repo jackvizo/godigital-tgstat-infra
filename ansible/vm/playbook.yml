@@ -41,10 +41,10 @@
       include_role:
         name: nginx_no_ssl
 
-    # - name: Install Certbot and obtain SSL certificates
-    #   include_role:
-    #     name: certbot
+    - name: Install Certbot and obtain SSL certificates
+      include_role:
+        name: certbot
 
-    # - name: Install and configure Nginx with SSL
-    #   include_role:
-    #     name: nginx_with_ssl
+    - name: Install and configure Nginx with SSL
+      include_role:
+        name: nginx_with_ssl
