@@ -99,7 +99,6 @@ model stat_post {
   date_of_post                DateTime?
   tg_post_id                  BigInt
   tg_channel_id               BigInt
-  message                     String?
   views                       Int?
   views_1h                    Int?
   view_24h                    Int?
@@ -111,9 +110,20 @@ model stat_post {
   comments_channels_count     Int?
   comments_messages_count_1h  Int?
   comments_messages_count_24h Int?
-  link                        String?
-  media                       String?
   forwards                    Int?
+}
+
+model stat_post_info {
+  pk            BigInt    @id @default(autoincrement())
+  timestamp     DateTime  @default(now())
+  date_of_post  DateTime?
+  tg_post_id    BigInt
+  tg_channel_id BigInt
+  message       String?
+  link          String?
+  media         String?
+
+  @@unique([tg_channel_id, tg_post_id])
 }
 
 model stat_reaction {
