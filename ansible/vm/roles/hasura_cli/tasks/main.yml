@@ -1,0 +1,15 @@
+---
+- name: Check if Hasura CLI is installed
+  command: hasura version
+  register: hasura_cli_check
+  ignore_errors: true
+
+- name: Install Hasura CLI
+  shell: curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | VERSION={{ hasura_cli_version }} bash
+  when: hasura_cli_check.rc != 0
+
+- name: Verify Hasura CLI installation
+  command: hasura version
+  register: hasura_cli_version_check
+  failed_when: hasura_cli_version_check.rc != 0
+  changed_when: false

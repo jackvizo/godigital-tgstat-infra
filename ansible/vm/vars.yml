@@ -27,3 +27,6 @@ project_domain: "godigital.team"
 frontend_subdomain: "tgstat"
 graphql_subdomain: "graphql"
 sso_subdomain: "sso"
+
+# Hasura configuration
+hasura_cli_version: v2.38.0
