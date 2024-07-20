@@ -18,7 +18,7 @@
 
 - name: Create temporary Nginx configuration for frontend without SSL
   ansible.builtin.template:
-    src: templates/nginx_no_ssl.conf.j2
+    src: templates/nginx_no_ssl_frontend.conf.j2
     dest: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
   when: nginx_conf_check_frontend.stat.exists == false
   notify: reload nginx
@@ -32,8 +32,8 @@
 
 - name: Create temporary Nginx configuration for graphql without SSL
   ansible.builtin.template:
-    src: templates/nginx_no_ssl.conf.j2
-    dest: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+    src: templates/nginx_no_ssl_graphql.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
   when: nginx_conf_check_graphql.stat.exists == false
   notify: reload nginx
   become: true
@@ -46,7 +46,7 @@
 
 - name: Create temporary Nginx configuration for sso without SSL
   ansible.builtin.template:
-    src: templates/nginx_no_ssl.conf.j2
+    src: templates/nginx_no_ssl_sso.conf.j2
     dest: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
   when: nginx_conf_check_sso.stat.exists == false
   notify: reload nginx
@@ -72,3 +72,30 @@
   ansible.builtin.fail:
     msg: "Nginx configuration is invalid"
   when: nginx_test_result.rc != 0
+
+- name: Check if ACME challenge directory exists
+  ansible.builtin.stat:
+    path: /var/www/html/.well-known/acme-challenge
+  register: acme_challenge_dir_check
+
+- name: Create directory for ACME challenge
+  ansible.builtin.file:
+    path: /var/www/html/.well-known/acme-challenge
+    state: directory
+    mode: '0755'
+  when: acme_challenge_dir_check.stat.exists == false
+  become: true
+  become_user: root
+
+- name: Check if ACME challenge test file exists
+  ansible.builtin.stat:
+    path: /var/www/html/.well-known/acme-challenge/test.html
+  register: acme_challenge_test_file_check
+
+- name: Create test file for ACME challenge
+  ansible.builtin.copy:
+    content: "test"
+    dest: /var/www/html/.well-known/acme-challenge/test.html
+  when: acme_challenge_test_file_check.stat.exists == false
+  become: true
+  become_user: root

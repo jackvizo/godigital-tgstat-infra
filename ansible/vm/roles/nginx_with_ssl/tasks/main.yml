@@ -1,20 +1,33 @@
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  when: "'nginx' not in ansible_facts.packages"
+  become: true
+  become_user: root
+
+- name: Check if Nginx configuration file for frontend exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_frontend
+
 - name: Create Nginx configuration for frontend with SSL
   ansible.builtin.template:
-    src: templates/nginx_with_ssl.conf.j2
+    src: templates/nginx_with_ssl_frontend.conf.j2
     dest: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_frontend.stat.exists == false
   notify: reload nginx
+  become: true
+  become_user: root
 
-- name: Create Nginx configuration for graphql with SSL
-  ansible.builtin.template:
-    src: templates/graphql_with_ssl.conf.j2
-    dest: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
-  notify: reload nginx
-
-- name: Create Nginx configuration for sso with SSL
-  ansible.builtin.template:
-    src: templates/nginx_with_ssl.conf.j2
-    dest: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
-  notify: reload nginx
+- name: Check if Nginx configuration file for graphql exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ graphql_subdomain | default
 
 - name: Ensure Nginx is running
   ansible.builtin.service:

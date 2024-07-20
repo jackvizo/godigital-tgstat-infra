@@ -20,7 +20,7 @@ graphql_port: 8080
 sso_port: 9080
 
 # Email for Let's Encrypt
-letsencrypt_email: "main@godigital.team"  # Email для регистрации Let's Encrypt
+letsencrypt_email: "mail@godigital.team"  # Email для регистрации Let's Encrypt
 
 # Domain Configuration
 project_domain: "godigital.team"
