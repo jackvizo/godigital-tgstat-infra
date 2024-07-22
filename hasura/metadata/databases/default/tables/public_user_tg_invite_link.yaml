@@ -24,6 +24,7 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - enabled
         - group_id
         - label
         - pk
@@ -39,6 +40,8 @@ update_permissions:
     permission:
       columns:
         - group_id
+        - pk
+        - enabled
         - label
         - tg_invite_link
         - user_id

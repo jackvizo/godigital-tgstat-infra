@@ -43,3 +43,10 @@ update_permissions:
       filter: {}
       check: {}
     comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
