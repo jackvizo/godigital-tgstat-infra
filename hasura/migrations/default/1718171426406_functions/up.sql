@@ -23,7 +23,7 @@ $function$ CREATE TABLE IF NOT EXISTS fn_users_by_period(
   count bigint
 );
 
-CREATE OR REPLACE FUNCTION public.user_signups_by_period(hasura_session json, start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[], time_period text)
+CREATE OR REPLACE FUNCTION public.user_signups_by_period(hasura_session json, start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[], time_period text, tg_invite_links text[] DEFAULT NULL)
   RETURNS SETOF fn_users_by_period
   LANGUAGE plpgsql
   STABLE
@@ -53,6 +53,8 @@ BEGIN
     tg_channel_id = ANY (tg_channel_ids)
     AND joined_at IS NOT NULL
     AND joined_at BETWEEN start_date AND end_date
+    AND (tg_invite_links IS NULL
+      OR invite_link = ANY (tg_invite_links))
   GROUP BY
     time_bucket
   ORDER BY
@@ -60,7 +62,7 @@ BEGIN
 END;
 $function$;
 
-CREATE OR REPLACE FUNCTION public.user_unsubscribes_by_period(hasura_session json, start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[], time_period text)
+CREATE OR REPLACE FUNCTION public.user_unsubscribes_by_period(hasura_session json, start_date timestamp without time zone, end_date timestamp without time zone, tg_channel_ids bigint[], time_period text, tg_invite_links text[] DEFAULT NULL)
   RETURNS SETOF fn_users_by_period
   LANGUAGE plpgsql
   STABLE
@@ -90,6 +92,8 @@ BEGIN
     tg_channel_id = ANY (tg_channel_ids)
     AND left_at IS NOT NULL
     AND left_at BETWEEN start_date AND end_date
+    AND (tg_invite_links IS NULL
+      OR invite_link = ANY (tg_invite_links))
   GROUP BY
     time_bucket
   ORDER BY
@@ -116,6 +120,7 @@ BEGIN
     public.check_user_access(x_hasura_user_id, tg_channel_ids);
   RETURN QUERY WITH filtered_users AS (
     SELECT
+      tg_channel_id,
       invite_link,
       COUNT(
         CASE WHEN joined_at BETWEEN start_date AND end_date THEN
@@ -129,7 +134,9 @@ BEGIN
       stat_user
     WHERE
       invite_link = ANY (link_array)
+      AND tg_channel_id = ANY (tg_channel_ids)
     GROUP BY
+      tg_channel_id,
       invite_link
 )
   SELECT
@@ -146,9 +153,7 @@ BEGIN
     f.joined_count,
     f.left_count;
 END;
-$function$;
-
-CREATE TABLE IF NOT EXISTS public.fn_unsubscribes_by_periods(
+$function$ CREATE TABLE IF NOT EXISTS public.fn_unsubscribes_by_periods(
   interval_label text,
   count int,
   percentage float

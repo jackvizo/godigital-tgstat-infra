@@ -28,10 +28,11 @@ model user_tg_channel {
 }
 
 model user_tg_invite_link {
-  pk             BigInt  @id @default(autoincrement())
-  user_id        String  @db.Uuid
+  pk             BigInt   @id @default(autoincrement())
+  user_id        String   @db.Uuid
   tg_invite_link String
   label          String?
+  enabled        Boolean? @default(false)
 
   group_id BigInt
 
