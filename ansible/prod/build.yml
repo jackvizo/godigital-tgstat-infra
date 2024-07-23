@@ -12,6 +12,6 @@
         chdir: "{{ base_dir }}/{{ project_name }}-infra/docker/{{ project_name }}-docker-prod"
     
     - name: Build Docker images
-      shell: "sudo docker-compose build"
+      shell: "sudo docker compose build"
       args:
         chdir: "{{ base_dir }}/{{ project_name }}-infra/docker/{{ project_name }}-docker-prod"

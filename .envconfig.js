@@ -208,10 +208,16 @@ const config = {
         PREFECT_PORT: process.env.PREFECT_PORT,
         PREFECT_ANALYTICS_APP_DATABASE_URL: process.env.PREFECT_DOCKER_ANALYTICS_APP_DATABASE_URL,
 
-        PREFECT_SMTP_HOST: process.env.SMTP_HOST,
-        PREFECT_SMTP_PORT: process.env.SMTP_PORT,
-        PREFECT_SMTP_USERNAME: process.env.SMTP_USERNAME,
-        PREFECT_SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+        // PREFECT_SMTP_HOST: process.env.SMTP_HOST,
+        // PREFECT_SMTP_PORT: process.env.SMTP_PORT,
+        // PREFECT_SMTP_USERNAME: process.env.SMTP_USERNAME,
+        // PREFECT_SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+
+        TGSTAT_BOT_DB_HOST: process.env.TGSTAT_BOT_DB_HOST,
+        TGSTAT_BOT_DB_PORT: process.env.TGSTAT_BOT_DB_PORT,
+        TGSTAT_BOT_DB_USER: process.env.TGSTAT_BOT_DB_USER,
+        TGSTAT_BOT_DB_PASSWORD: process.env.TGSTAT_BOT_DB_PASSWORD,
+        TGSTAT_BOT_DB_NAME: process.env.TGSTAT_BOT_DB_NAME,
       },
     },
     {
