@@ -6,7 +6,7 @@
     - name: Clone or update repositories
       shell: |
         if cd {{ base_dir }}/{{ item.name }}; then
-          git reset --hard && git clean -fd && git checkout main && git pull;;
+          git reset --hard && git clean -fd && git checkout main && git pull;
         else
           git clone {{ item.url }} {{ base_dir }}/{{ item.name }};
         fi
