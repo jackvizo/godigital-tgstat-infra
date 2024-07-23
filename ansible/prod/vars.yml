@@ -13,7 +13,7 @@ repositories:
   - name: "{{ project_name }}-infra"
     url: git@github.com:Gaever/gaever-godigital-infra.git
   - name: "{{ project_name }}-tgstats-bot"
-    url: git@github.com:jackvizo/tgstats_bot.git
+    url: git@github.com:jackvizo/godigital-tgstat-bot.git
 
 # Пути к каталогам
 base_dir: "/home/{{ remote_user }}"
