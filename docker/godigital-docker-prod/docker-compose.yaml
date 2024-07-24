@@ -1,5 +1,3 @@
-version: '3.7'
-
 x-prefect-worker-base: &prefect-worker-template
   build: 
     context: ../../../godigital-tgstats-bot
