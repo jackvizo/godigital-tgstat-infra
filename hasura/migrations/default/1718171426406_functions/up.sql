@@ -155,7 +155,9 @@ BEGIN
     f.joined_count,
     f.left_count;
 END;
-$function$ CREATE TABLE IF NOT EXISTS public.fn_unsubscribes_by_periods(
+$function$;
+
+CREATE TABLE IF NOT EXISTS public.fn_unsubscribes_by_periods(
   interval_label text,
   count int,
   percentage float
