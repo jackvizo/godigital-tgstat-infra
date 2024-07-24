@@ -3,6 +3,12 @@ server {
     listen [::]:80;
     server_name {{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }};
 
+    large_client_header_buffers 4 16k;
+    client_max_body_size 10M;
+    proxy_buffer_size 16k;
+    proxy_buffers 4 32k;
+    proxy_busy_buffers_size 64k;
+
     location / {
         proxy_pass http://localhost:{{ graphql_port }};
         proxy_http_version 1.1;
