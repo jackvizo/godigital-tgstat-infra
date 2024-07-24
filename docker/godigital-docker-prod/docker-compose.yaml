@@ -96,7 +96,7 @@ services:
         limits:
           memory: 700M
     volumes:
-      - ./yandex-cloud:/root/.postgresql          
+      - ./yandex-cloud:/opt/keycloak/.postgresql          
     ports:
       - '${KEYCLOAK_PORT}:8080'
     command:
