@@ -18,7 +18,9 @@ BEGIN
     RAISE EXCEPTION 'User % does not have access to all provided tg_channel_ids', x_hasura_user_id;
   END IF;
 END;
-$function$ CREATE TABLE IF NOT EXISTS fn_users_by_period(
+$function$;
+
+CREATE TABLE IF NOT EXISTS fn_users_by_period(
   time_bucket timestamp,
   count bigint
 );
