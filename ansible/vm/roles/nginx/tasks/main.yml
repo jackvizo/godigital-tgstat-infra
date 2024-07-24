@@ -16,9 +16,9 @@
     path: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
   register: nginx_conf_check_frontend
 
-- name: Create Nginx configuration for frontend with SSL
+- name: Create temporary Nginx configuration for frontend without SSL
   ansible.builtin.template:
-    src: templates/nginx_with_ssl_frontend.conf.j2
+    src: templates/nginx_frontend.conf.j2
     dest: /etc/nginx/sites-enabled/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
   when: nginx_conf_check_frontend.stat.exists == false
   notify: reload nginx
@@ -27,7 +27,31 @@
 
 - name: Check if Nginx configuration file for graphql exists
   ansible.builtin.stat:
-    path: /etc/nginx/sites-enabled/{{ graphql_subdomain | default
+    path: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_graphql
+
+- name: Create temporary Nginx configuration for graphql without SSL
+  ansible.builtin.template:
+    src: templates/nginx_graphql.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_graphql.stat.exists == false
+  notify: reload nginx
+  become: true
+  become_user: root
+
+- name: Check if Nginx configuration file for sso exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: nginx_conf_check_sso
+
+- name: Create temporary Nginx configuration for sso without SSL
+  ansible.builtin.template:
+    src: templates/nginx_sso.conf.j2
+    dest: /etc/nginx/sites-enabled/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  when: nginx_conf_check_sso.stat.exists == false
+  notify: reload nginx
+  become: true
+  become_user: root
 
 - name: Ensure Nginx is running
   ansible.builtin.service:

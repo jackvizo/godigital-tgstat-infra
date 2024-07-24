@@ -13,6 +13,16 @@
     path: /etc/letsencrypt/live/{{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
   register: certbot_frontend_cert_check
 
+- name: Dry run Certbot for frontend domain
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly --dry-run --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      -d {{ frontend_subdomain | default('') ~ (frontend_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_dry_run_frontend
+  when: certbot_frontend_cert_check.stat.exists == false
+  become: true
+  become_user: root  
+
 - name: Obtain SSL certificates from Let's Encrypt for frontend domain
   ansible.builtin.command:
     cmd: >
@@ -35,6 +45,16 @@
     path: /etc/letsencrypt/live/{{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
   register: certbot_graphql_cert_check
 
+- name: Dry run Certbot for graphql domain
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly --dry-run --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      -d {{ graphql_subdomain | default('') ~ (graphql_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_dry_run_graphql
+  become: true
+  become_user: root
+  when: certbot_graphql_cert_check.stat.exists == false
+
 - name: Obtain SSL certificates from Let's Encrypt for graphql domain
   ansible.builtin.command:
     cmd: >
@@ -56,6 +76,16 @@
   ansible.builtin.stat:
     path: /etc/letsencrypt/live/{{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}/fullchain.pem
   register: certbot_sso_cert_check
+
+- name: Dry run Certbot for sso domain
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly --dry-run --nginx -n --agree-tos --email {{ letsencrypt_email }}
+      -d {{ sso_subdomain | default('') ~ (sso_subdomain | length > 0) | ternary('.', '') }}{{ project_domain }}
+  register: certbot_dry_run_sso
+  become: true
+  become_user: root
+  when: certbot_sso_cert_check.stat.exists == false
 
 - name: Obtain SSL certificates from Let's Encrypt for sso domain
   ansible.builtin.command:
