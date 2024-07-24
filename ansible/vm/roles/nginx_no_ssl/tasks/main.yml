@@ -89,13 +89,13 @@
 
 - name: Check if ACME challenge test file exists
   ansible.builtin.stat:
-    path: /var/www/html/.well-known/acme-challenge/test.html
+    path: /var/www/html/.well-known/acme-challenge/index.html
   register: acme_challenge_test_file_check
 
 - name: Create test file for ACME challenge
   ansible.builtin.copy:
     content: "test"
-    dest: /var/www/html/.well-known/acme-challenge/test.html
+    dest: /var/www/html/.well-known/acme-challenge/index.html
   when: acme_challenge_test_file_check.stat.exists == false
   become: true
   become_user: root

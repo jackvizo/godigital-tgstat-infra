@@ -21,6 +21,7 @@ x-prefect-worker-base: &prefect-worker-template
   volumes:
     - ../../../godigital-tgstats-bot:/app
     - godigital_shared:/prefect-tmp/runner_storage
+    - ./yandex-cloud:/root/.postgresql
   networks:
     - godigital-network
   depends_on:
@@ -35,7 +36,7 @@ x-prefect-worker-base: &prefect-worker-template
 services:
   hasura:
     image: hasura/graphql-engine:latest
-    container_name: godigital-hasura
+    container_name: godigital-hasura-prod
     ports:
         - '${HASURA_PORT}:8080'
     environment:
@@ -61,6 +62,8 @@ services:
       retries: 5
     depends_on:
       - keycloak
+    volumes:
+      - ./yandex-cloud:/root/.postgresql
     command: ["sh", "-c", "sleep 30 && graphql-engine serve"]
     restart: always
     logging:
@@ -68,9 +71,9 @@ services:
       options:
         max-size: "10m"
         max-file: "3"    
-      
+
   keycloak:
-    container_name: godigital-keycloak
+    container_name: godigital-keycloak-prod
     build: 
       context: .
       dockerfile: keycloak.Dockerfile
@@ -91,7 +94,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 700M      
+          memory: 700M
+    volumes:
+      - ./yandex-cloud:/root/.postgresql          
     ports:
       - '${KEYCLOAK_PORT}:8080'
     command:
@@ -112,7 +117,7 @@ services:
     build: 
       context: ../../../godigital-tgstats-bot
       dockerfile: postgres.Dockerfile
-    container_name: godigital-prefect-postgres
+    container_name: godigital-prefect-postgres-prod
     environment:
       POSTGRES_PASSWORD: prefect
       POSTGRES_DB: prefect
@@ -127,7 +132,7 @@ services:
       - godigital-network
 
   prefect-server:
-    container_name: godigital-prefect-server
+    container_name: godigital-prefect-server-prod
     build: 
       context: ../../../godigital-tgstats-bot
       dockerfile: server.Dockerfile
@@ -150,17 +155,17 @@ services:
   prefect-add-bot-session:
     <<: *prefect-worker-template
     image: godigital-prefect-worker:latest
-    container_name: godigital-add-bot-session
+    container_name: godigital-add-bot-session-prod
     command: ["python3", "main.py", "--flow", "add-bot-session"]
 
   prefect-tg-collect:
     <<: *prefect-worker-template
     image: godigital-prefect-worker:latest
-    container_name: godigital-tg-collect
+    container_name: godigital-tg-collect-prod
     command: ["python3", "main.py", "--flow", "tg-collect-by-all-users"]
 
   frontend:
-    container_name: godigital-frontend
+    container_name: godigital-frontend-prod
     build: 
       context: ../../../godigital-frontend
       dockerfile: Dockerfile
@@ -201,6 +206,7 @@ services:
         max-file: "3"      
     volumes:
       - godigital_shared:/prefect-tmp/runner_storage
+      - ./yandex-cloud:/root/.postgresql
     networks:
       - godigital-network
 
