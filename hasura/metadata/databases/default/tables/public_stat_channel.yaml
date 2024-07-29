@@ -1,0 +1,27 @@
+table:
+  name: stat_channel
+  schema: public
+object_relationships:
+  - name: user_tg_channel
+    using:
+      manual_configuration:
+        column_mapping:
+          tg_channel_id: tg_channel_id
+        insertion_order: null
+        remote_table:
+          name: user_tg_channel
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - pk
+        - tg_channel_id
+        - timestamp
+        - total_participants
+      filter:
+        user_tg_channel:
+          user_id:
+            _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""

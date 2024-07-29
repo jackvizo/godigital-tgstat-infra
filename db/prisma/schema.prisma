@@ -152,6 +152,14 @@ model stat_reaction {
   @@unique([tg_channel_id, tg_post_id, reaction_emoticon_code])
 }
 
+model stat_channel {
+  pk                         BigInt   @id @default(autoincrement())
+  timestamp                  DateTime @default(now())
+  tg_channel_id              BigInt
+  total_participants         BigInt
+  tg_last_admin_log_event_id BigInt
+}
+
 model fn_cohort_analysis {
   join_date    DateTime? @db.Date
   left_date    DateTime? @db.Date

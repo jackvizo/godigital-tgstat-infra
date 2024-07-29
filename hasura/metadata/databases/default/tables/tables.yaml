@@ -4,6 +4,7 @@
 - "!include public_fn_unsubscribes_by_links.yaml"
 - "!include public_fn_unsubscribes_by_periods.yaml"
 - "!include public_fn_users_by_period.yaml"
+- "!include public_stat_channel.yaml"
 - "!include public_stat_post.yaml"
 - "!include public_stat_post_info.yaml"
 - "!include public_stat_reaction.yaml"

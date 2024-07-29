@@ -223,7 +223,7 @@ BEGIN
     intervals i
   LEFT JOIN stat_user su ON EXTRACT(EPOCH FROM (su.left_at - su.joined_at)) BETWEEN i.interval_start AND i.interval_end
     AND su.tg_channel_id = ANY (tg_channel_ids)
-    AND su.joined_at >= start_date
+    AND su.left_at >= start_date
     AND su.left_at <= end_date
 GROUP BY
   i.interval_label,
