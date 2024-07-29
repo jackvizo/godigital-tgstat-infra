@@ -21,7 +21,7 @@
     "deploy:production:migrate": "ansible-playbook -i ansible/prod/hosts ansible/prod/migrate.yml",
     "deploy:production:start": "ansible-playbook -i ansible/prod/hosts ansible/prod/start.yml",
     "deploy:production": "yarn deploy:production:git && yarn deploy:production:env && yarn deploy:production:build && yarn deploy:production:start",
-    "deploy:production:front": "yarn deploy:production:git && yarn deploy:production:env && ansible-playbook -i ansible/prod/hosts ansible/prod/build-frontend-only.yaml && yarn deploy:production:start"
+    "deploy:production:front": "yarn deploy:production:git && yarn deploy:production:env && ansible-playbook -i ansible/prod/hosts ansible/prod/build-frontend-only.yml && yarn deploy:production:start"
   },
   "devDependencies": {
     "@prisma/client": "^5.2.0",
