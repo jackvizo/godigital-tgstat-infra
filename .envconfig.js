@@ -117,7 +117,12 @@ const config = {
       path: path.join(infraRoot, "db"),
       env: {
         ...prismaEnv,
-        PRISMA_OUT: process.env.PRISMA_OUT,
+        PRISMA_OUT: "../node_modules/.prisma/client",
+        PROD_DB_HOST: process.env.PROD_DB_HOST,
+        PROD_DB_PORT: process.env.PROD_DB_PORT,
+        PROD_DB_USER: process.env.PROD_DB_USER,
+        PROD_DB_PASSWORD: process.env.PROD_DB_PASSWORD,
+        PROD_DB_NAME: process.env.PROD_DB_NAME,
       },
     },
     {

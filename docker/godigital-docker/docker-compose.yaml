@@ -75,6 +75,7 @@ services:
       POSTGRES_USER: '${POSTGRES_USER}'
     volumes:
       - 'godigital_pg:/var/lib/postgresql/data'
+      - ./yandex-cloud:/root/.postgresql
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
       retries: 3

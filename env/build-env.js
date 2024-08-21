@@ -80,7 +80,7 @@ function run() {
     console.log(`Created ${env} env for service ${service.name}`);
   }
 
-  fs.writeFileSync(path.join(infraPath, `.env.${env}.example`), objToEnvEmptyValues(loadedEnv.parsed));
+  // fs.writeFileSync(path.join(infraPath, `.env.${env}.example`), objToEnvEmptyValues(loadedEnv.parsed));
 }
 
 run();
