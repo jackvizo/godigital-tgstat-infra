@@ -23,11 +23,11 @@ cd ansible/vps && ansible-playbook -i inventory/hosts.ini playbook.yml --ask-pas
 
 2. Склонировать в этот каталог репозитории
 
-- `git clone git@github.com:Gaever/gaever-godigital-infra.git ./godigital-infra`
-- `git clone git@github.com:Gaever/gaever-godigital-frontend.git ./godigital-frontend`
+- `git clone git@github.com:jackvizo/godigital-tgstat-infra.git ./godigital-infra`
+- `git clone git@github.com:jackvizo/godigital-tgstat-frontend.git ./godigital-frontend`
 - `git clone git@github.com:jackvizo/godigital-tgstat-bot.git ./godigital-tgstat-bot`
-- `git clone git@github.com:Gaever/gaever-godigital-tests.git ./godigital-tests`
-- `git clone git@github.com:Gaever/gaever-godigital-keycloak-theme.git ./godigital-keycloak-theme`
+- `git clone git@github.com:jackvizo/godigital-tgstat-tests.git ./godigital-tests`
+- `git clone git@github.com:jackvizo/godigital-keycloak-theme.git ./godigital-keycloak-theme`
 
 3. Создать .env.dev файл:
 
