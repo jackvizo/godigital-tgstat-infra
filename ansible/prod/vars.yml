@@ -9,9 +9,9 @@ project_name: godigital
 # Репозитории Git
 repositories:
   - name: "{{ project_name }}-frontend"
-    url: git@github.com:Gaever/gaever-godigital-frontend.git
+    url: git@github.com:jackvizo/godigital-tgstat-frontend.git
   - name: "{{ project_name }}-infra"
-    url: git@github.com:Gaever/gaever-godigital-infra.git
+    url: git@github.com:jackvizo/godigital-tgstat-infra.git
   - name: "{{ project_name }}-tgstats-bot"
     url: git@github.com:jackvizo/godigital-tgstat-bot.git
 
