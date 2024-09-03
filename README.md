@@ -224,7 +224,7 @@ cd godigital-infra && yarn hasura:export
 cd godigital-infra && yarn deploy:production
 ```
 
-N.B! Команда не выполнит миграции и не применит метаданные hasura
+N.B! Команда не выполнит миграции и не применит метаданные hasura.
 Если были внесены изменения в хранимые процедуры или в права доступа, следует, после выполнения `yarn deploy:production` сделать следующее:
 
 ```sh
