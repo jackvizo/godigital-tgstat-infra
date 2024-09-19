@@ -25,7 +25,7 @@ cd ansible/vps && ansible-playbook -i inventory/hosts.ini playbook.yml --ask-pas
 
 - `git clone git@github.com:jackvizo/godigital-tgstat-infra.git ./godigital-infra`
 - `git clone git@github.com:jackvizo/godigital-tgstat-frontend.git ./godigital-frontend`
-- `git clone git@github.com:jackvizo/godigital-tgstat-bot.git ./godigital-tgstat-bot`
+- `git clone git@github.com:jackvizo/godigital-tgstat-bot.git ./godigital-tgstats-bot`
 - `git clone git@github.com:jackvizo/godigital-tgstat-tests.git ./godigital-tests`
 - `git clone git@github.com:jackvizo/godigital-keycloak-theme.git ./godigital-keycloak-theme`
 
@@ -48,14 +48,24 @@ yarn env:dev
 127.0.0.1 sso.godigital.local
 ```
 
-5. Запустить docker контейнеры
+6. Установить зависимости
+
+```sh
+# библиотеки фронтенда
+cd godigital-frontend && npm install
+
+# python библиотеки бота
+cd godigital-tgstats-bot && . ./venv/bin/activate && pip install -r requirements.txt
+```
+
+7. Запустить docker контейнеры
 
 ```sh
 cd godigital-infra/docker/godigital-docker
 docker compose up -d
 ```
 
-6. Расположение сервисов
+8. Расположение сервисов
    - Фронтенд: http://godigital.local:3000/
    - keycloak: http://sso.godigital.local:3000/
    - hasura: http://localhost:8080/
