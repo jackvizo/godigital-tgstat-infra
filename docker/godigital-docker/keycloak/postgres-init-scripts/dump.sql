@@ -1,112 +1,9 @@
 --
--- PostgreSQL database cluster dump
---
-
-SET default_transaction_read_only = off;
-
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-
---
--- Roles
---
-
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'godigital') THEN
-        CREATE ROLE godigital;
-        ALTER ROLE godigital WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:iZRCgICKeaQRTHQY16Dazw==$271VT3/YfMOXu2sLOP3BPm5sJzYAT8vgWp7h7wgkfLc=:20qOcIc7i8LqqwqzYNxWSTrvfBxW0Pq4AmBqpk/kh0o=';
-   END IF;
-END
-$$;
-
-
-
---
--- User Configurations
---
-
-
-
-
-
-
-
-
---
--- Databases
---
-
---
--- Database "template1" dump
---
-
-\connect template1
-
---
 -- PostgreSQL database dump
 --
 
 -- Dumped from database version 16.2 (Debian 16.2-1.pgdg120+2)
 -- Dumped by pg_dump version 16.2 (Debian 16.2-1.pgdg120+2)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- PostgreSQL database dump complete
---
-
---
--- Database "godigital" dump
---
-
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 16.2 (Debian 16.2-1.pgdg120+2)
--- Dumped by pg_dump version 16.2 (Debian 16.2-1.pgdg120+2)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: godigital; Type: DATABASE; Schema: -; Owner: godigital
---
-
--- Проверка существования базы данных и ее создание при необходимости
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'godigital') THEN
-      CREATE DATABASE godigital WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
-   END IF;
-END
-$$;
-
-
-
-
-
-ALTER DATABASE godigital OWNER TO godigital;
-
-\connect godigital
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1787,8 +1684,8 @@ COPY public.client_attributes (client_id, name, value) FROM stdin;
 db962978-abd2-4625-8288-472315f9d100	post.logout.redirect.uris	+
 db962978-abd2-4625-8288-472315f9d100	pkce.code.challenge.method	S256
 09bfdfc5-11dc-4ca5-a89d-029491cfcb8b	post.logout.redirect.uris	http://localhost:3000/*##http://godigital.local:3000/*
-09bfdfc5-11dc-4ca5-a89d-029491cfcb8b	login_theme	base
 09bfdfc5-11dc-4ca5-a89d-029491cfcb8b	client.secret.creation.time	1717565307
+09bfdfc5-11dc-4ca5-a89d-029491cfcb8b	login_theme	godigital
 \.
 
 
@@ -3178,8 +3075,8 @@ e7b365ad-ae9f-44dc-b66e-5db5ae39001f	String	jsonType.label
 --
 
 COPY public.realm (id, access_code_lifespan, user_action_lifespan, access_token_lifespan, account_theme, admin_theme, email_theme, enabled, events_enabled, events_expiration, login_theme, name, not_before, password_policy, registration_allowed, remember_me, reset_password_allowed, social, ssl_required, sso_idle_timeout, sso_max_lifespan, update_profile_on_soc_login, verify_email, master_admin_client, login_lifespan, internationalization_enabled, default_locale, reg_email_as_username, admin_events_enabled, admin_events_details_enabled, edit_username_allowed, otp_policy_counter, otp_policy_window, otp_policy_period, otp_policy_digits, otp_policy_alg, otp_policy_type, browser_flow, registration_flow, direct_grant_flow, reset_credentials_flow, client_auth_flow, offline_session_idle_timeout, revoke_refresh_token, access_token_life_implicit, login_with_email_allowed, duplicate_emails_allowed, docker_auth_flow, refresh_token_max_reuse, allow_user_managed_access, sso_max_lifespan_remember_me, sso_idle_timeout_remember_me, default_role) FROM stdin;
-16d92262-12b3-4f31-aa27-dc97588c55e9	60	604800	604800	\N	\N	\N	t	f	0	\N	godigital	0	\N	t	t	t	f	EXTERNAL	604800	604800	f	t	9ae44d43-c019-4c7e-8ab7-15bdb4fdca1e	1800	t	ru	t	f	f	f	0	1	30	6	HmacSHA1	totp	9c92d4fb-7685-4a12-8195-35a2bc7101fa	f44f68f7-268f-410d-9fc5-df0673b71852	0c60aaf7-ddc8-4d60-a192-94b7f3cde593	d9040a95-51cf-47c0-acdb-d0fc9e1e13ac	45e62bdc-de9a-433e-b833-a90228b15da5	2592000	f	900	t	f	e7157816-0e47-46e1-91f7-aeeed7fc9366	0	f	0	0	4bef87ff-0d0e-4d5e-ac76-7743087e8ff4
-c8810218-c378-437b-a906-f64e9cee8ae4	60	300	60	\N	\N	\N	t	f	0	\N	master	0	\N	f	f	f	f	EXTERNAL	1800	36000	f	f	1ac20814-714f-41f2-914d-f3b6664fc004	1800	f	\N	f	f	f	f	0	1	30	6	HmacSHA1	totp	2290a502-da34-426d-b37c-d687fdc0e0f4	5a57aa22-3d83-4e32-9175-eac539bfb4e5	74d2b456-294c-4dce-9051-354757f8e243	f77b3e80-0989-47c6-b24c-e444f12d82a8	246cab7f-7cdb-4dbd-9529-199315765f5e	2592000	f	900	t	f	c5d7dce8-8756-401e-8a93-7e7245eed4ef	0	f	0	0	d34638e7-5432-4650-8db7-cf5c2bb2a624
+16d92262-12b3-4f31-aa27-dc97588c55e9	60	604800	604800				t	f	0	base	godigital	0	\N	t	t	t	f	EXTERNAL	604800	604800	f	t	9ae44d43-c019-4c7e-8ab7-15bdb4fdca1e	1800	t	ru	t	f	f	f	0	1	30	6	HmacSHA1	totp	9c92d4fb-7685-4a12-8195-35a2bc7101fa	f44f68f7-268f-410d-9fc5-df0673b71852	0c60aaf7-ddc8-4d60-a192-94b7f3cde593	d9040a95-51cf-47c0-acdb-d0fc9e1e13ac	45e62bdc-de9a-433e-b833-a90228b15da5	2592000	f	900	t	f	e7157816-0e47-46e1-91f7-aeeed7fc9366	0	f	0	0	4bef87ff-0d0e-4d5e-ac76-7743087e8ff4
+c8810218-c378-437b-a906-f64e9cee8ae4	60	300	60				t	f	0	keycloak	master	0	\N	f	f	f	f	EXTERNAL	1800	36000	f	f	1ac20814-714f-41f2-914d-f3b6664fc004	1800	f	\N	f	f	f	f	0	1	30	6	HmacSHA1	totp	2290a502-da34-426d-b37c-d687fdc0e0f4	5a57aa22-3d83-4e32-9175-eac539bfb4e5	74d2b456-294c-4dce-9051-354757f8e243	f77b3e80-0989-47c6-b24c-e444f12d82a8	246cab7f-7cdb-4dbd-9529-199315765f5e	2592000	f	900	t	f	c5d7dce8-8756-401e-8a93-7e7245eed4ef	0	f	0	0	d34638e7-5432-4650-8db7-cf5c2bb2a624
 \.
 
 
@@ -3188,14 +3085,6 @@ c8810218-c378-437b-a906-f64e9cee8ae4	60	300	60	\N	\N	\N	t	f	0	\N	master	0	\N	f	f
 --
 
 COPY public.realm_attribute (name, realm_id, value) FROM stdin;
-_browser_header.contentSecurityPolicyReportOnly	c8810218-c378-437b-a906-f64e9cee8ae4	
-_browser_header.xContentTypeOptions	c8810218-c378-437b-a906-f64e9cee8ae4	nosniff
-_browser_header.referrerPolicy	c8810218-c378-437b-a906-f64e9cee8ae4	no-referrer
-_browser_header.xRobotsTag	c8810218-c378-437b-a906-f64e9cee8ae4	none
-_browser_header.xFrameOptions	c8810218-c378-437b-a906-f64e9cee8ae4	SAMEORIGIN
-_browser_header.contentSecurityPolicy	c8810218-c378-437b-a906-f64e9cee8ae4	frame-src 'self'; frame-ancestors 'self'; object-src 'none';
-_browser_header.xXSSProtection	c8810218-c378-437b-a906-f64e9cee8ae4	1; mode=block
-_browser_header.strictTransportSecurity	c8810218-c378-437b-a906-f64e9cee8ae4	max-age=31536000; includeSubDomains
 bruteForceProtected	c8810218-c378-437b-a906-f64e9cee8ae4	false
 permanentLockout	c8810218-c378-437b-a906-f64e9cee8ae4	false
 maxTemporaryLockouts	c8810218-c378-437b-a906-f64e9cee8ae4	0
@@ -3212,14 +3101,6 @@ displayNameHtml	c8810218-c378-437b-a906-f64e9cee8ae4	<div class="kc-logo-text"><
 defaultSignatureAlgorithm	c8810218-c378-437b-a906-f64e9cee8ae4	RS256
 offlineSessionMaxLifespanEnabled	c8810218-c378-437b-a906-f64e9cee8ae4	false
 offlineSessionMaxLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	5184000
-_browser_header.contentSecurityPolicyReportOnly	16d92262-12b3-4f31-aa27-dc97588c55e9	
-_browser_header.xContentTypeOptions	16d92262-12b3-4f31-aa27-dc97588c55e9	nosniff
-_browser_header.referrerPolicy	16d92262-12b3-4f31-aa27-dc97588c55e9	no-referrer
-_browser_header.xRobotsTag	16d92262-12b3-4f31-aa27-dc97588c55e9	none
-_browser_header.xFrameOptions	16d92262-12b3-4f31-aa27-dc97588c55e9	SAMEORIGIN
-_browser_header.contentSecurityPolicy	16d92262-12b3-4f31-aa27-dc97588c55e9	frame-src 'self'; frame-ancestors 'self'; object-src 'none';
-_browser_header.xXSSProtection	16d92262-12b3-4f31-aa27-dc97588c55e9	1; mode=block
-_browser_header.strictTransportSecurity	16d92262-12b3-4f31-aa27-dc97588c55e9	max-age=31536000; includeSubDomains
 bruteForceProtected	16d92262-12b3-4f31-aa27-dc97588c55e9	false
 permanentLockout	16d92262-12b3-4f31-aa27-dc97588c55e9	false
 maxTemporaryLockouts	16d92262-12b3-4f31-aa27-dc97588c55e9	0
@@ -3272,6 +3153,55 @@ shortVerificationUri	16d92262-12b3-4f31-aa27-dc97588c55e9
 actionTokenGeneratedByUserLifespan.reset-credentials	16d92262-12b3-4f31-aa27-dc97588c55e9	
 client-policies.profiles	16d92262-12b3-4f31-aa27-dc97588c55e9	{"profiles":[]}
 client-policies.policies	16d92262-12b3-4f31-aa27-dc97588c55e9	{"policies":[]}
+cibaBackchannelTokenDeliveryMode	c8810218-c378-437b-a906-f64e9cee8ae4	poll
+cibaExpiresIn	c8810218-c378-437b-a906-f64e9cee8ae4	120
+cibaAuthRequestedUserHint	c8810218-c378-437b-a906-f64e9cee8ae4	login_hint
+parRequestUriLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	60
+cibaInterval	c8810218-c378-437b-a906-f64e9cee8ae4	5
+actionTokenGeneratedByAdminLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	43200
+actionTokenGeneratedByUserLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	300
+oauth2DeviceCodeLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	600
+oauth2DevicePollingInterval	c8810218-c378-437b-a906-f64e9cee8ae4	5
+clientSessionIdleTimeout	c8810218-c378-437b-a906-f64e9cee8ae4	0
+clientSessionMaxLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	0
+clientOfflineSessionIdleTimeout	c8810218-c378-437b-a906-f64e9cee8ae4	0
+clientOfflineSessionMaxLifespan	c8810218-c378-437b-a906-f64e9cee8ae4	0
+webAuthnPolicyRpEntityName	c8810218-c378-437b-a906-f64e9cee8ae4	keycloak
+webAuthnPolicySignatureAlgorithms	c8810218-c378-437b-a906-f64e9cee8ae4	ES256
+webAuthnPolicyRpId	c8810218-c378-437b-a906-f64e9cee8ae4	
+webAuthnPolicyAttestationConveyancePreference	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyAuthenticatorAttachment	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyRequireResidentKey	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyUserVerificationRequirement	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyCreateTimeout	c8810218-c378-437b-a906-f64e9cee8ae4	0
+webAuthnPolicyAvoidSameAuthenticatorRegister	c8810218-c378-437b-a906-f64e9cee8ae4	false
+webAuthnPolicyRpEntityNamePasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	keycloak
+webAuthnPolicySignatureAlgorithmsPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	ES256
+webAuthnPolicyRpIdPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	
+webAuthnPolicyAttestationConveyancePreferencePasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyAuthenticatorAttachmentPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyRequireResidentKeyPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyUserVerificationRequirementPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	not specified
+webAuthnPolicyCreateTimeoutPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	0
+webAuthnPolicyAvoidSameAuthenticatorRegisterPasswordless	c8810218-c378-437b-a906-f64e9cee8ae4	false
+client-policies.profiles	c8810218-c378-437b-a906-f64e9cee8ae4	{"profiles":[]}
+client-policies.policies	c8810218-c378-437b-a906-f64e9cee8ae4	{"policies":[]}
+_browser_header.contentSecurityPolicyReportOnly	16d92262-12b3-4f31-aa27-dc97588c55e9	
+_browser_header.xContentTypeOptions	16d92262-12b3-4f31-aa27-dc97588c55e9	nosniff
+_browser_header.referrerPolicy	16d92262-12b3-4f31-aa27-dc97588c55e9	no-referrer
+_browser_header.xRobotsTag	16d92262-12b3-4f31-aa27-dc97588c55e9	none
+_browser_header.xFrameOptions	16d92262-12b3-4f31-aa27-dc97588c55e9	SAMEORIGIN
+_browser_header.contentSecurityPolicy	16d92262-12b3-4f31-aa27-dc97588c55e9	frame-src 'self'; frame-ancestors 'self'; object-src 'none';
+_browser_header.xXSSProtection	16d92262-12b3-4f31-aa27-dc97588c55e9	1; mode=block
+_browser_header.strictTransportSecurity	16d92262-12b3-4f31-aa27-dc97588c55e9	max-age=31536000; includeSubDomains
+_browser_header.contentSecurityPolicyReportOnly	c8810218-c378-437b-a906-f64e9cee8ae4	
+_browser_header.xContentTypeOptions	c8810218-c378-437b-a906-f64e9cee8ae4	nosniff
+_browser_header.referrerPolicy	c8810218-c378-437b-a906-f64e9cee8ae4	no-referrer
+_browser_header.xRobotsTag	c8810218-c378-437b-a906-f64e9cee8ae4	none
+_browser_header.xFrameOptions	c8810218-c378-437b-a906-f64e9cee8ae4	SAMEORIGIN
+_browser_header.contentSecurityPolicy	c8810218-c378-437b-a906-f64e9cee8ae4	frame-src 'self'; frame-ancestors 'self'; object-src 'none';
+_browser_header.xXSSProtection	c8810218-c378-437b-a906-f64e9cee8ae4	1; mode=block
+_browser_header.strictTransportSecurity	c8810218-c378-437b-a906-f64e9cee8ae4	max-age=31536000; includeSubDomains
 \.
 
 
@@ -3296,8 +3226,8 @@ COPY public.realm_enabled_event_types (realm_id, value) FROM stdin;
 --
 
 COPY public.realm_events_listeners (realm_id, value) FROM stdin;
-c8810218-c378-437b-a906-f64e9cee8ae4	jboss-logging
 16d92262-12b3-4f31-aa27-dc97588c55e9	jboss-logging
+c8810218-c378-437b-a906-f64e9cee8ae4	jboss-logging
 \.
 
 
@@ -5703,37 +5633,5 @@ ALTER TABLE ONLY public.identity_provider_config
 
 --
 -- PostgreSQL database dump complete
---
-
---
--- Database "postgres" dump
---
-
-\connect postgres
-
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 16.2 (Debian 16.2-1.pgdg120+2)
--- Dumped by pg_dump version 16.2 (Debian 16.2-1.pgdg120+2)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- PostgreSQL database dump complete
---
-
---
--- PostgreSQL database cluster dump complete
 --
 
