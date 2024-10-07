@@ -138,6 +138,7 @@ services:
       POSTGRES_USER: prefect
     volumes:
       - 'godigital_prefect_pg:/var/lib/postgresql/data'
+      - ../../db/prepare-stage:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect"]
       retries: 3
