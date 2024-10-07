@@ -4,7 +4,8 @@
   "scripts": {
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
-    "prepare-stage": "gulp --gulpfile prepare-stage/gulpfile.ts"
+    "prepare-stage": "gulp --gulpfile prepare-stage/gulpfile.ts",
+    "swap-user-ids": "ts-node updateUserIds/updateUserIds.ts"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

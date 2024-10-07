@@ -65,7 +65,13 @@ cd godigital-infra/docker/godigital-docker
 docker compose up -d
 ```
 
-8. Расположение сервисов
+8.  Применить метаданные hasura
+
+```sh
+cd godigital-infra && yarn hasura:apply
+```
+
+9. Расположение сервисов
    - Фронтенд: http://godigital.local:3000/
    - keycloak: http://sso.godigital.local:3000/
    - hasura: http://localhost:8080/
@@ -276,3 +282,16 @@ cd godigital-infra && yarn db:prepare-stage
 Внимание! Данные в локальной БД будут заменены данными из production дампа.
 Деперсонифицированный дамп можно найти по пути `godigital-infra/db/prepare-stage/local_dump.sql`
 Из дампа удалены авторизации в tg ботов.
+
+Выполнить скрипт, который подменит id пользователей из продового дампа на id пользователя в локальной бд
+
+```sh
+cd godigital-infra/db && yarn swap-user-ids c16b1955-2290-4ae7-bfee-1223b51a528b a883921b-9de5-4ed2-a461-f9003a299f82
+```
+
+Добавить фейковую авторизацию в локальную БД проекта. Она не будет работать с проектом godigital-tgstat-bot, но позволит вести разработку фронтенда.
+
+```sql
+INSERT INTO "public"."config__tg_bot_session_pool" ("pk", "created_at", "phone_number", "status", "session_str", "api_hash", "api_id", "user_id") VALUES
+(1, '2024-07-24 19:22:30.526', '71111111111', 'enabled', '123', '123', '123', 'a883921b-9de5-4ed2-a461-f9003a299f82')
+```

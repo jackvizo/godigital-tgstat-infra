@@ -1,4 +1,8 @@
+import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+dotenv.config();
+
+process.env.DATABASE_URL = "postgresql://postgres:postgres@localhost:54321/postgres";
 
 const prisma = new PrismaClient();
 
