@@ -1,6 +1,7 @@
 - "!include public_cohort_analysis.yaml"
 - "!include public_get_avg_user_lifecycle.yaml"
 - "!include public_unsubscribes_by_links.yaml"
+- "!include public_unsubscribes_by_links_in_strict_period.yaml"
 - "!include public_unsubscribes_by_periods.yaml"
 - "!include public_user_signups_by_period.yaml"
 - "!include public_user_unsubscribes_by_period.yaml"
