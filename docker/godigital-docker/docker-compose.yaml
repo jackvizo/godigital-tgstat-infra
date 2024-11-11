@@ -1,7 +1,9 @@
 version: '3.7'
 
 x-prefect-worker-base: &prefect-worker-template
-  build: 
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  build:
     context: ../../../godigital-tgstats-bot
     dockerfile: worker.Dockerfile
     args:
@@ -18,7 +20,7 @@ x-prefect-worker-base: &prefect-worker-template
     DB_PASSWORD: '${TGSTAT_BOT_DB_PASSWORD}'
     DB_NAME: '${TGSTAT_BOT_DB_NAME}'
 
-  volumes:  
+  volumes:
     - ../../../godigital-tgstats-bot:/app
     - godigital_shared:/prefect-tmp/runner_storage
   networks:
@@ -27,17 +29,20 @@ x-prefect-worker-base: &prefect-worker-template
     prefect-server:
       condition: service_healthy
   healthcheck:
-    test: ["CMD-SHELL", "wget -qO- http://prefect-server:4200/api/ready || exit 1"]
+    test: [ "CMD-SHELL", "wget -qO- http://prefect-server:4200/api/ready || exit 1" ]
     interval: 30s
     timeout: 10s
     retries: 5
 
 services:
   hasura:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     image: hasura/graphql-engine:latest
     container_name: godigital-hasura
     ports:
-        - '${HASURA_PORT}:8080'
+      - '${HASURA_PORT}:8080'
     environment:
       HASURA_GRAPHQL_DATABASE_URL: '${HASURA_GRAPHQL_DATABASE_URL}'
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
@@ -55,14 +60,14 @@ services:
     networks:
       - godigital-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080", "&&", "curl -f ${HASURA_KEYCLOAK_CERTS_URL} || exit 1"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080", "&&", "curl -f ${HASURA_KEYCLOAK_CERTS_URL} || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
     depends_on:
       - postgres
       - keycloak
-    command: ["sh", "-c", "sleep 30 && graphql-engine serve"]
+    command: [ "sh", "-c", "sleep 30 && graphql-engine serve" ]
 
   postgres:
     image: 'postgres:16'
@@ -76,14 +81,19 @@ services:
     volumes:
       - 'godigital_pg:/var/lib/postgresql/data'
       - ./yandex-cloud:/root/.postgresql
+      # local-dump.sql
+      - ../../db/prepare-stage:/docker-entrypoint-initdb.d
+
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
       retries: 3
       timeout: 5s
 
   keycloak:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: godigital-keycloak
-    build: 
+    build:
       context: .
       dockerfile: keycloak.Dockerfile
       args:
@@ -126,42 +136,48 @@ services:
     volumes:
       - godigital_kk_pg:/var/lib/postgresql/data
       - ./keycloak/postgres-init-scripts:/docker-entrypoint-initdb.d
-  
+
   prefect-postgres:
-    build: 
+    build:
       context: ../../../godigital-tgstats-bot
       dockerfile: postgres.Dockerfile
     container_name: godigital-prefect-postgres
+    # by @jackvizo
+    ports:
+      - '54323:5432'
+    # ---
     environment:
       POSTGRES_PASSWORD: prefect
       POSTGRES_DB: prefect
       POSTGRES_USER: prefect
     volumes:
       - 'godigital_prefect_pg:/var/lib/postgresql/data'
-      - ../../db/prepare-stage:/docker-entrypoint-initdb.d
+      # - ../../db/prepare-stage:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "prefect", "-U", "prefect" ]
       retries: 3
       timeout: 5s
     networks:
       - godigital-network
 
   prefect-server:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: godigital-prefect-server
-    build: 
+    build:
       context: ../../../godigital-tgstats-bot
       dockerfile: server.Dockerfile
-    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+    entrypoint: [ "/opt/prefect/entrypoint.sh", "prefect", "server", "start" ]
     environment:
       - PREFECT_SERVER_API_HOST=0.0.0.0
       - PREFECT_SERVER_CSRF_PROTECTION_ENABLED=false
       - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
     ports:
-        - '${PREFECT_PORT}:4200'
+      - '${PREFECT_PORT}:4200'
     networks:
       - godigital-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4200/api/ready || exit 1"]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:4200/api/ready || exit 1" ]
       start_period: 5s
       interval: 10s
       timeout: 5s
@@ -171,17 +187,20 @@ services:
     <<: *prefect-worker-template
     image: godigital-prefect-worker:latest
     container_name: godigital-add-bot-session
-    command: ["python3", "main.py", "--flow", "add-bot-session"]
+    command: [ "python3", "main.py", "--flow", "add-bot-session" ]
 
   prefect-tg-collect:
     <<: *prefect-worker-template
     image: godigital-prefect-worker:latest
     container_name: godigital-tg-collect
-    command: ["python3", "main.py", "--flow", "tg-collect-by-all-users"]
+    command: [ "python3", "main.py", "--flow", "tg-collect-by-all-users" ]
 
   frontend:
+    user: root
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: godigital-frontend
-    build: 
+    build:
       context: ../../../godigital-frontend
       dockerfile: dev.Dockerfile
       args:
@@ -217,10 +236,11 @@ services:
       driver: json-file
       options:
         max-size: "10m"
-        max-file: "3"      
+        max-file: "3"
     volumes:
       - godigital_shared:/prefect-tmp/runner_storage
       - ../../../godigital-frontend:/app:delegated
+      # - ../../../godigital-frontend/node_modules:/app/node_modules
     networks:
       - godigital-network
 

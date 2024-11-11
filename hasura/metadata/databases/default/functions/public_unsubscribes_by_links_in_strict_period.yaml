@@ -1,0 +1,8 @@
+function:
+  name: unsubscribes_by_links_in_strict_period
+  schema: public
+configuration:
+  custom_root_fields: {}
+  session_argument: hasura_session
+permissions:
+  - role: user

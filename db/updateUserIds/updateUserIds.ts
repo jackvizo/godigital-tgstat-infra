@@ -8,6 +8,14 @@ const prisma = new PrismaClient();
 
 async function updateUserIds(productionUserId: string, testUserId: string) {
   try {
+    // --- jackvizo added
+    // Обновляем связи в таблице user
+    await prisma.user.updateMany({
+      where: { id: productionUserId },
+      data: { id: testUserId },
+    });
+    // ---
+
     // Обновляем связи в таблице user_tg_channel
     await prisma.user_tg_channel.updateMany({
       where: { user_id: productionUserId },
